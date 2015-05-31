@@ -20,6 +20,7 @@
 (def d 10)
 (def opacity 1.0)
 (def step 1)
+(def colors ["red" "blue" "lightblue" "green" "lightgreen" "orange" "yellow"])
 
 
 
@@ -60,20 +61,33 @@
   (let [mx (+ (* dx step) x)
         my (+ (* dy step) y)
         newx (if (< width mx) (* dx step) mx)
-        newy (if (< height mx) (* dy step) my)]
+        newx (if (neg? newx) (- width mx) newx)
+        newy (if (< height my) (* dy step) my)
+        newy (if (neg? newy) (- height my) newy)
+]
    (merge ball {:x newx
                 :y newy})))
 
 (defn move-balls [balls]
   (map move-ball balls))
 
-(def balls-state (atom [{:x 200 :y 200 :val 30 :color "red" :dx 1.0 :dy 0.02}
-                        {:x 250 :y 50 :val 80 :color "blue" :dx 0.4 :dy 0.05}]))
+(defn pick-color []
+  (first (shuffle colors)))
+
+(defn rand-dx-dy []
+  (let [multiplier (if (> 0.5 (rand)) -1 1)
+        speed (rand)]
+    (* multiplier speed)))
+
+
+(def balls-state (atom [{:id 1 :x 200 :y 200 :val 30 :color "red" :dx 0.1 :dy -0.8}
+                        {:id 2 :x 250 :y 50 :val 80 :color "lightgreen" :dx -0.4 :dy 0.05}]))
 (def running (atom false))
 
 (defn tick []
   (swap! balls-state move-balls)
   (clear)
+  #_(println @balls-state)
   (draw-balls @balls-state))
 
 (defn time-loop []
@@ -98,6 +112,8 @@
 (clear)
 (start)
 (run)
+;(stop)
+
 
 
 
