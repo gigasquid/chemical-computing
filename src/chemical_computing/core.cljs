@@ -6,11 +6,9 @@
 
 (enable-console-print!)
 
-(println "Hi Carin.")
-
 ;; define your app data so that it doesn't get over-written on reload
 
-(defonce app-state (atom [{:value 10 :x 10 :y 10} {:value 2 :x 33 :y 55}]))
+(defonce app-state (atom []))
 
 (def canvas (-> js/document (.getElementById "canvas")))
 (def context (.getContext canvas "2d"))
@@ -22,12 +20,6 @@
 (def step 1)
 (def colors ["red" "blue" "lightblue" "green" "lightgreen" "orange" "yellow"])
 
-
-
-
-;; context.fillStype = "blue"
-;; context.font = "bold 16px Arial
-;;;context.fillText("Hi", 100, 100)
 
 (defn setColor [context color]
   (set! (.-fillStyle context) color)
@@ -57,19 +49,18 @@
 (defn draw-balls [state]
   (doall (map draw-ball state)))
 
-(defn move-ball [{:keys [x y dx dy] :as ball}]
-  (let [mx (+ (* dx step) x)
-        my (+ (* dy step) y)
+(defn move-ball [{:keys [x y dx dy] :as ball} collide?]
+  (let [mx (+ (* dx (if collide? (rand-int d) step)) x)
+        my (+ (* dy (if collide? (rand-int d) step)) y)
         newx (if (< width mx) (* dx step) mx)
         newx (if (neg? newx) (- width mx) newx)
         newy (if (< height my) (* dy step) my)
-        newy (if (neg? newy) (- height my) newy)
-]
+        newy (if (neg? newy) (- height my) newy)]
    (merge ball {:x newx
                 :y newy})))
 
 (defn move-balls [balls]
-  (map move-ball balls))
+  (map #(move-ball % false) balls))
 
 (defn pick-color []
   (first (shuffle colors)))
@@ -79,15 +70,55 @@
         speed (rand)]
     (* multiplier speed)))
 
+(defn collide? [ball x y ball-d]
+  (let [dx (Math/abs (- (:x ball) x))
+        dy (Math/abs (- (:y ball) y))]
+    (and (> ball-d dx) (> ball-d dy))))
 
-(def balls-state (atom [{:id 1 :x 200 :y 200 :val 30 :color "red" :dx 0.1 :dy -0.8}
-                        {:id 2 :x 250 :y 50 :val 80 :color "lightgreen" :dx -0.4 :dy 0.05}]))
+(defn prime-reaction [ball-a ball-b]
+  (let [a (:val ball-a)
+        b (:val ball-b)
+        new-ball-a (assoc ball-a :dx (* -1 (:dx ball-a))
+                                 :dy (* -1 (:dy ball-a)))
+        new-ball-a (move-ball new-ball-a true)]
+   (if (and (not= a b)
+            (zero? (mod a b)))
+     (assoc new-ball-a :val (/ a b))
+     new-ball-a)))
+
+(defn collide-and-react [balls]
+  (for [ball balls]
+    (let [rest-balls (remove (fn [b] (= (:id ball) (:id b))) balls)
+          collided-with (filter (fn [b] (collide? b (:x ball) (:y ball) d)) rest-balls)
+          ball-to-react (first collided-with)]
+      (if ball-to-react (prime-reaction ball ball-to-react) ball))))
+
+
+(defn gen-ball [id val]
+  {:id id
+   :x (rand-int width)
+   :y (rand-int height)
+   :val val
+   :color (rand-nth colors)
+   :dx (* (+ 0.5 (rand-int 3)) (rand-dx-dy))
+   :dy (* (+ 0.5 (rand-int 3)) (rand-dx-dy))})
+
+
+(defn gen-balls [n]
+  (for [i (range 2 (inc n))]
+    (gen-ball i i)))
+
+
+(defonce balls-state (atom (gen-balls 100)))
+
 (def running (atom false))
 
+(defn move-and-react [balls]
+  (-> balls (move-balls) (collide-and-react)))
+
 (defn tick []
-  (swap! balls-state move-balls)
+  (swap! balls-state move-and-react)
   (clear)
-  #_(println @balls-state)
   (draw-balls @balls-state))
 
 (defn time-loop []
@@ -109,10 +140,21 @@
 (defn stop []
   (reset! running false))
 
+
 (clear)
 (start)
 (run)
 ;(stop)
+;
+
+(comment
+  (swap! balls-state [{:id 1 :x 200 :y 200 :val 18 :color "red" :dx -0.2 :dy 0.0}
+                      {:id 2 :x 100 :y 200 :val 3 :color "lightgreen" :dx 0.2 :dy 0.0}])
+
+  (println (filter #(or (= (:id %) 80) (= (:id %) 17)) @balls-state))
+
+)
+
 
 
 
