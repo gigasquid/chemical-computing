@@ -1,6 +1,8 @@
 (ns ^:figwheel-always chemical-computing.core
     (:require
-     [cljs.core.async :refer [timeout]])
+     [cljs.core.async :refer [timeout]]
+     [enfocus.core :as ef]
+     [enfocus.events :as ev])
     (:require-macros
      [cljs.core.async.macros :refer [go]]))
 
@@ -139,6 +141,21 @@
 
 (defn stop []
   (reset! running false))
+
+(defn is-prime? [n]
+  (let [possible-factors (range 2 n)
+        remainders (map #(mod n %) possible-factors)]
+    (not (some zero? remainders))))
+
+(defn prime-concentration []
+  (let [answer (sort (distinct (map :val @balls-state)))
+        non-primes (remove is-prime? answer)]
+ [answer non-primes]))
+
+(ef/at "#prime-button" (ev/listen :click
+                                  #(let [answer (prime-concentration)]
+                                     (ef/at "#answer" (ef/content (str (first answer)))
+                                            "#not-primes" (ef/content (str (last answer )))))))
 
 
 (clear)
