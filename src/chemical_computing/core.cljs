@@ -17,8 +17,8 @@
 (def background "white")
 (def d 10)
 (def opacity 1.0)
-(def step 1)
-(def colors ["red" "blue" "lightblue" "green" "lightgreen" "orange" "yellow"])
+(def step 2)
+(def colors ["red" "pink" "lightgray" "lightblue" "green" "lightgreen" "orange" "yellow"])
 
 
 (defn setColor [context color]
