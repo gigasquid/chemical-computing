@@ -37,7 +37,7 @@
     (setColor background)
     (.fillRect  0 0 width height)))
 
-(defn draw-ball [{:keys [x y val color]}]
+(defn draw-molecule [{:keys [x y val color]}]
   (doto context
        (setColor color)
        .beginPath
@@ -48,21 +48,21 @@
     (setText "black")
     (.fillText (str val) (- x 7) (+ y 5))))
 
-(defn draw-balls [state]
-  (doall (map draw-ball state)))
+(defn draw-molecules [state]
+  (doall (map draw-molecule state)))
 
-(defn move-ball [{:keys [x y dx dy] :as ball} collide?]
+(defn move-molecule [{:keys [x y dx dy] :as molecule} collide?]
   (let [mx (+ (* dx (if collide? (rand-int d) step)) x)
         my (+ (* dy (if collide? (rand-int d) step)) y)
         newx (if (< width mx) (* dx step) mx)
         newx (if (neg? newx) (- width mx) newx)
         newy (if (< height my) (* dy step) my)
         newy (if (neg? newy) (- height my) newy)]
-   (merge ball {:x newx
+   (merge molecule {:x newx
                 :y newy})))
 
-(defn move-balls [balls]
-  (map #(move-ball % false) balls))
+(defn move-molecules [molecules]
+  (map #(move-molecule % false) molecules))
 
 (defn pick-color []
   (first (shuffle colors)))
@@ -72,31 +72,31 @@
         speed (rand)]
     (* multiplier speed)))
 
-(defn collide? [ball x y ball-d]
-  (let [dx (Math/abs (- (:x ball) x))
-        dy (Math/abs (- (:y ball) y))]
-    (and (> ball-d dx) (> ball-d dy))))
+(defn collide? [molecule x y molecule-d]
+  (let [dx (Math/abs (- (:x molecule) x))
+        dy (Math/abs (- (:y molecule) y))]
+    (and (> molecule-d dx) (> molecule-d dy))))
 
-(defn prime-reaction [ball-a ball-b]
-  (let [a (:val ball-a)
-        b (:val ball-b)
-        new-ball-a (assoc ball-a :dx (* -1 (:dx ball-a))
-                                 :dy (* -1 (:dy ball-a)))
-        new-ball-a (move-ball new-ball-a true)]
+(defn prime-reaction [molecule-a molecule-b]
+  (let [a (:val molecule-a)
+        b (:val molecule-b)
+        new-molecule-a (assoc molecule-a :dx (* -1 (:dx molecule-a))
+                                 :dy (* -1 (:dy molecule-a)))
+        new-molecule-a (move-molecule new-molecule-a true)]
    (if (and (not= a b)
             (zero? (mod a b)))
-     (assoc new-ball-a :val (/ a b))
-     new-ball-a)))
+     (assoc new-molecule-a :val (/ a b))
+     new-molecule-a)))
 
-(defn collide-and-react [balls]
-  (for [ball balls]
-    (let [rest-balls (remove (fn [b] (= (:id ball) (:id b))) balls)
-          collided-with (filter (fn [b] (collide? b (:x ball) (:y ball) d)) rest-balls)
-          ball-to-react (first collided-with)]
-      (if ball-to-react (prime-reaction ball ball-to-react) ball))))
+(defn collide-and-react [molecules]
+  (for [molecule molecules]
+    (let [rest-molecules (remove (fn [b] (= (:id molecule) (:id b))) molecules)
+          collided-with (filter (fn [b] (collide? b (:x molecule) (:y molecule) d)) rest-molecules)
+          molecule-to-react (first collided-with)]
+      (if molecule-to-react (prime-reaction molecule molecule-to-react) molecule))))
 
 
-(defn gen-ball [id val]
+(defn gen-molecule [id val]
   {:id id
    :x (rand-int width)
    :y (rand-int height)
@@ -106,22 +106,25 @@
    :dy (* (+ 0.5 (rand-int 3)) (rand-dx-dy))})
 
 
-(defn gen-balls [n]
+(defn gen-molecules [n]
   (for [i (range 2 (inc n))]
-    (gen-ball i i)))
+    (gen-molecule i i)))
 
 
-(defonce balls-state (atom (gen-balls 100)))
+(defonce molecules-state (atom (gen-molecules 100)))
 
 (def running (atom false))
 
-(defn move-and-react [balls]
-  (-> balls (move-balls) (collide-and-react)))
+(defn move-and-react [molecules]
+  (-> molecules (move-molecules) (collide-and-react)))
 
 (defn tick []
-  (swap! balls-state move-and-react)
+  (swap! molecules-state move-and-react)
   (clear)
-  (draw-balls @balls-state))
+  (draw-molecules @molecules-state)
+  (let [answer (prime-concentration)]
+                                     (ef/at "#answer" (ef/content (str (first answer)))
+                                            "#not-primes" (ef/content (str (last answer ))))))
 
 (defn time-loop []
   (when @running
@@ -148,7 +151,7 @@
     (not (some zero? remainders))))
 
 (defn prime-concentration []
-  (let [answer (sort (distinct (map :val @balls-state)))
+  (let [answer (sort (distinct (map :val @molecules-state)))
         non-primes (remove is-prime? answer)]
  [answer non-primes]))
 
@@ -165,10 +168,10 @@
 ;
 
 (comment
-  (swap! balls-state [{:id 1 :x 200 :y 200 :val 18 :color "red" :dx -0.2 :dy 0.0}
+  (swap! molecules-state [{:id 1 :x 200 :y 200 :val 18 :color "red" :dx -0.2 :dy 0.0}
                       {:id 2 :x 100 :y 200 :val 3 :color "lightgreen" :dx 0.2 :dy 0.0}])
 
-  (println (filter #(or (= (:id %) 80) (= (:id %) 17)) @balls-state))
+  (println (filter #(or (= (:id %) 80) (= (:id %) 17)) @molecules-state))
 
 )
 
