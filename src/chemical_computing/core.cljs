@@ -54,10 +54,10 @@
 (defn move-molecule [{:keys [x y dx dy] :as molecule} collide?]
   (let [mx (+ (* dx (if collide? (rand-int d) step)) x)
         my (+ (* dy (if collide? (rand-int d) step)) y)
-        newx (if (< width mx) (* dx step) mx)
-        newx (if (neg? newx) (- width mx) newx)
-        newy (if (< height my) (* dy step) my)
-        newy (if (neg? newy) (- height my) newy)]
+        newx (if (< (+ (* 2 d) width) mx) (* dx step) mx)
+        newx (if (> (- (* 2 d)) newx) (- width mx) newx)
+        newy (if (< (+ (* 2 d) height)  my) (* dy step) my)
+        newy (if (> (- (* 2 d)) newy) (- height my) newy)]
    (merge molecule {:x newx
                 :y newy})))
 
