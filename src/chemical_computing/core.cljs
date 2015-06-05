@@ -1,10 +1,10 @@
 (ns ^:figwheel-always chemical-computing.core
     (:require
-     [cljs.core.async :refer [timeout]]
+     [cljs.core.async :refer [timeout chan alts! >! <! reduce close!]]
      [enfocus.core :as ef]
      [enfocus.events :as ev])
     (:require-macros
-     [cljs.core.async.macros :refer [go]]))
+     [cljs.core.async.macros :refer [go go-loop]]))
 
 (enable-console-print!)
 
@@ -103,15 +103,57 @@
    :val val
    :color (rand-nth colors)
    :dx (* (+ 0.5 (rand-int 3)) (rand-dx-dy))
-   :dy (* (+ 0.5 (rand-int 3)) (rand-dx-dy))})
+   :dy (* (+ 0.5 (rand-int 3)) (rand-dx-dy))
+   :in-chan (chan 10)
+   :out-chan (chan 10)})
 
 
-(defn gen-molecules [n]
-  (for [i (range 2 (inc n))]
-    (gen-molecule i i)))
+(defn gen-molecules [vals]
+  (let [n (count vals)]
+    (map gen-molecule (range n) vals)))
+
+(def world (atom {1 {}}))
+
+(defn molecule-reaction [mol-state]
+  (let [mol-out-chan (get mol-state :out-chan)
+        mol-in-chan (get mol-state :in-chan)]
+   (go-loop [mstate mol-state]
+     (let [[v ch] (alts! [mol-in-chan (timeout 30)])]
+       (if (= v :val-request)
+         (do
+           (>! mol-out-chan mstate)
+           (recur mstate))
+         (let [new-state (move-molecule mstate false)]
+           (swap! world update-in [(:id new-state) :position] (select-keys new-state [:x :y]))
+           (recur new-state)))))))
+
+(defn perform-with-mol-values [world f]
+  (let [result-chan (chan 10)
+        reduce-result-chan (reduce conj [] result-chan)]
+    (go
+      (doseq [v (vals @world)]
+        (>! (get-in v [:chans :in-chan]) :val-request)
+        (>! result-chan (<! (get-in v [:chans :out-chan]))))
+
+      (close! result-chan)
+      (let [r (<! reduce-result-chan)]
+        (f r)))))
+
+(defn setup [vals]
+  (let [init-mols (gen-molecules (range vals))
+        w-vals (map (fn [v] {:position (select-keys v [:x :y])
+                            :chans (select-keys v [:out-chan :in-chan])}) init-mols)
+        _ (println :w-vals w-vals)
+        w (zipmap (map :id init-mols) w-vals)]
+    (println :init-mols init-mols :w w)
+    (reset! world w)
+    (doseq [mol init-mols]
+      (molecule-reaction mol))))
+
+(setup 100)
 
 
-(defonce molecules-state (atom (gen-molecules 100)))
+;(defonce molecules-state (atom (gen-molecules 100)))
 
 (def running (atom false))
 
@@ -119,10 +161,13 @@
   (-> molecules (move-molecules) (collide-and-react)))
 
 (defn tick []
-  (swap! molecules-state move-and-react)
   (clear)
-  (draw-molecules @molecules-state)
-  (let [answer (prime-concentration)]
+  (perform-with-mol-values world draw-molecules)
+  #_(perform-with-mol-values world #(println :hey (first %)))
+  #_(swap! molecules-state move-and-react)
+  #_(clear)
+  #_(draw-molecules @molecules-state)
+  #_(let [answer (prime-concentration)]
                                      (ef/at "#answer" (ef/content (str (first answer)))
                                             "#not-primes" (ef/content (str (last answer ))))))
 
@@ -151,9 +196,7 @@
     (not (some zero? remainders))))
 
 (defn prime-concentration []
-  (let [answer (sort (distinct (map :val @molecules-state)))
-        non-primes (remove is-prime? answer)]
- [answer non-primes]))
+  )
 
 (ef/at "#prime-button" (ev/listen :click
                                   #(let [answer (prime-concentration)]
@@ -164,7 +207,6 @@
 (clear)
 (start)
 (run)
-;(stop)
 ;
 
 (comment
