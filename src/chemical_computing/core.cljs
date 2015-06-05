@@ -1,6 +1,6 @@
 (ns ^:figwheel-always chemical-computing.core
     (:require
-     [cljs.core.async :refer [timeout chan alts! >! <! reduce close!]]
+     [cljs.core.async :refer [timeout chan alts! >! <!]]
      [enfocus.core :as ef]
      [enfocus.events :as ev])
     (:require-macros
@@ -21,6 +21,8 @@
 (def opacity 1.0)
 (def step 2)
 (def colors ["red" "pink" "lightgray" "lightblue" "green" "lightgreen" "orange" "yellow"])
+(defonce world (atom {}))
+(def running (atom false))
 
 
 (defn setColor [context color]
@@ -88,13 +90,6 @@
      (assoc new-molecule-a :val (/ a b))
      new-molecule-a)))
 
-(defn collide-and-react [molecules]
-  (for [molecule molecules]
-    (let [rest-molecules (remove (fn [b] (= (:id molecule) (:id b))) molecules)
-          collided-with (filter (fn [b] (collide? b (:x molecule) (:y molecule) d)) rest-molecules)
-          molecule-to-react (first collided-with)]
-      (if molecule-to-react (prime-reaction molecule molecule-to-react) molecule))))
-
 
 (defn gen-molecule [id val]
   {:id id
@@ -103,80 +98,56 @@
    :val val
    :color (rand-nth colors)
    :dx (* (+ 0.5 (rand-int 3)) (rand-dx-dy))
-   :dy (* (+ 0.5 (rand-int 3)) (rand-dx-dy))
-   :in-chan (chan 10)
-   :out-chan (chan 10)})
+   :dy (* (+ 0.5 (rand-int 3)) (rand-dx-dy))})
 
 
 (defn gen-molecules [vals]
   (let [n (count vals)]
     (map gen-molecule (range n) vals)))
 
-(def world (atom {1 {}}))
+
+(defn find-collision [molecule]
+  (let [rest-molecules (remove (fn [b] (= (:id molecule) (:id b))) (vals @world))
+        collided-with (filter (fn [b] (collide? b (:x molecule) (:y molecule) d)) rest-molecules)]
+    (first collided-with)))
 
 (defn molecule-reaction [mol-state]
-  (let [mol-out-chan (get mol-state :out-chan)
-        mol-in-chan (get mol-state :in-chan)]
-   (go-loop [mstate mol-state]
-     (let [[v ch] (alts! [mol-in-chan (timeout 30)])]
-       (if (= v :val-request)
-         (do
-           (>! mol-out-chan mstate)
-           (recur mstate))
-         (let [new-state (move-molecule mstate false)]
-           (swap! world update-in [(:id new-state) :position] (select-keys new-state [:x :y]))
-           (recur new-state)))))))
+  (go-loop [mstate mol-state]
+    (when @running
+      (<! (timeout 30))
+          (let [collision-mol (find-collision mstate)
+                new-state (if collision-mol
+                            (-> mstate (prime-reaction collision-mol) (move-molecule true))
+                            (move-molecule mstate false))]
+            (swap! world assoc  (:id new-state) new-state)
+            (println :collision-mol collision-mol (move-molecule collision-mol true))
+            (when collision-mol (swap! world assoc (:id collision-mol) (move-molecule collision-mol true)))
+            (recur new-state)))))
 
-(defn perform-with-mol-values [world f]
-  (let [result-chan (chan 10)
-        reduce-result-chan (reduce conj [] result-chan)]
-    (go
-      (doseq [v (vals @world)]
-        (>! (get-in v [:chans :in-chan]) :val-request)
-        (>! result-chan (<! (get-in v [:chans :out-chan]))))
-
-      (close! result-chan)
-      (let [r (<! reduce-result-chan)]
-        (f r)))))
+(defn setup-mols [init-mols]
+  (reset! world (zipmap (map :id init-mols) init-mols))
+  (doseq [mol init-mols]
+    (molecule-reaction mol)))
 
 (defn setup [vals]
-  (let [init-mols (gen-molecules (range vals))
-        w-vals (map (fn [v] {:position (select-keys v [:x :y])
-                            :chans (select-keys v [:out-chan :in-chan])}) init-mols)
-        _ (println :w-vals w-vals)
-        w (zipmap (map :id init-mols) w-vals)]
-    (println :init-mols init-mols :w w)
-    (reset! world w)
-    (doseq [mol init-mols]
-      (molecule-reaction mol))))
+  (let [init-mols (gen-molecules vals)]
+    (setup-mols init-mols)))
 
-(setup 100)
-
-
-;(defonce molecules-state (atom (gen-molecules 100)))
-
-(def running (atom false))
-
-(defn move-and-react [molecules]
-  (-> molecules (move-molecules) (collide-and-react)))
+(defn measurement []
+  (sort (distinct (map :val (vals @world)))))
 
 (defn tick []
   (clear)
-  (perform-with-mol-values world draw-molecules)
-  #_(perform-with-mol-values world #(println :hey (first %)))
-  #_(swap! molecules-state move-and-react)
-  #_(clear)
-  #_(draw-molecules @molecules-state)
-  #_(let [answer (prime-concentration)]
-                                     (ef/at "#answer" (ef/content (str (first answer)))
-                                            "#not-primes" (ef/content (str (last answer ))))))
+  (draw-molecules (vals @world))
+  (let [answer (measurement)]
+     (ef/at "#answer" (ef/content (str  answer))
+            "#not-primes" (ef/content (str (last answer ))))))
 
 (defn time-loop []
-  (when @running
-    (go
-     (<! (timeout 30))
-     (tick)
-     (.requestAnimationFrame js/window time-loop))))
+  (go
+    (<! (timeout 60))
+    (tick)
+    (.requestAnimationFrame js/window time-loop)))
 
 (defn run []
   (.requestAnimationFrame
@@ -190,24 +161,15 @@
 (defn stop []
   (reset! running false))
 
-(defn is-prime? [n]
-  (let [possible-factors (range 2 n)
-        remainders (map #(mod n %) possible-factors)]
-    (not (some zero? remainders))))
+(defn restart []
+  (clear)
+  (start))
 
-(defn prime-concentration []
-  )
-
-(ef/at "#prime-button" (ev/listen :click
-                                  #(let [answer (prime-concentration)]
-                                     (ef/at "#answer" (ef/content (str (first answer)))
-                                            "#not-primes" (ef/content (str (last answer )))))))
-
-
-(clear)
-(start)
+(restart)
 (run)
+
 ;
+
 
 (comment
   (swap! molecules-state [{:id 1 :x 200 :y 200 :val 18 :color "red" :dx -0.2 :dy 0.0}
@@ -219,8 +181,19 @@
 
 
 
-
-
-
-
+                                     (setup (range 2 10))
+(ef/at "#small-prime-button" (ev/listen :click
+                                        #(do
+                                           (stop)
+                                           (let [example-mols [{:id 1 :x 200 :y 200 :val 3 :color "red" :dx -0.3 :dy 0.0}
+                                                               {:id 2 :x 100 :y 200 :val 18 :color "lightgreen" :dx 0.3 :dy 0.0}]]
+                                             (restart)
+                                             (setup-mols example-mols))))
+       "#prime-button" (ev/listen :click
+                                  #(do
+                                     (stop)
+                                     (restart)
+                                     (setup (range 2 101))))
+       "#stop-button" (ev/listen :click
+                                  #(do (stop))))
 
