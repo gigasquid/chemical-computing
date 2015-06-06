@@ -35,8 +35,8 @@
 
 (defn setLoading [context]
   (doto context
-    (setText "black" "bold 40px Courier")
-    (.fillText "Ready?"250 350)))
+    (setText "grey" "bold 30px Arial")
+    (.fillText "Ready?" 200 250)))
 
 (defn clear []
   (doto context
@@ -177,27 +177,19 @@
 (start)
 (run)
 
-;
 
 
-(comment
-  (swap! molecules-state [{:id 1 :x 200 :y 200 :val 18 :color "red" :dx -0.2 :dy 0.0}
-                      {:id 2 :x 100 :y 200 :val 3 :color "lightgreen" :dx 0.2 :dy 0.0}])
+;; Button event handling
 
-  (println (filter #(or (= (:id %) 80) (= (:id %) 17)) @molecules-state))
-
-)
-
-
+(def example-mols [{:id 1 :x 200 :y 200 :val 3 :color "red" :dx -0.3 :dy 0.0}
+                   {:id 2 :x 100 :y 200 :val 18 :color "lightgreen" :dx 0.3 :dy 0.0}])
 
 (ef/at "#small-prime-button" (ev/listen :click
                                         #(go
                                            (stop)
                                            (<! (timeout 1000))
-                                           (let [example-mols [{:id 1 :x 200 :y 200 :val 3 :color "red" :dx -0.3 :dy 0.0}
-                                                               {:id 2 :x 100 :y 200 :val 18 :color "lightgreen" :dx 0.3 :dy 0.0}]]
-                                             (restart)
-                                             (setup-mols example-mols))))
+                                           (restart)
+                                           (setup-mols example-mols)))
        "#prime-button" (ev/listen :click
                                   #(go
                                      (stop)
