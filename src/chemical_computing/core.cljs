@@ -90,6 +90,14 @@
      (assoc molecule-a :val (/ a b))
      molecule-a)))
 
+(defn max-reaction [molecule-a molecule-b]
+  (let [a (:val molecule-a)
+        b (:val molecule-b)]
+    (println :a a :b b)
+    (if (> b a)
+      (assoc molecule-a :val b)
+      molecule-a)))
+
 (defn gen-molecule [id val]
   {:id id
    :x (rand-int width)
@@ -167,14 +175,27 @@
 
 ;; Experiments
 
-(def example-mols [{:id 1 :x 200 :y 200 :val 3 :color "red" :dx -0.5 :dy 0.0}
-                   {:id 2 :x 100 :y 200 :val 18 :color "lightgreen" :dx 0.5 :dy 0.0}])
+(def example-primes-mols [{:id 1 :x 200 :y 200 :val 3 :color "red" :dx -0.5 :dy 0.0}
+                          {:id 2 :x 100 :y 200 :val 18 :color "lightgreen" :dx 0.5 :dy 0.0}])
+
+(def example-maxs-mols [{:id 1 :x 200 :y 200 :val 20 :color "lightblue" :dx -0.5 :dy 0.0}
+                        {:id 2 :x 100 :y 200 :val 2 :color "pink" :dx 0.5 :dy 0.0}])
 
 (defn small-example-primes []
-  (setup-mols example-mols prime-reaction))
+  (ef/at "#experiment-title" (ef/content "Prime Example with Two Molecules"))
+  (setup-mols example-primes-mols prime-reaction))
 
 (defn primes-to-100 []
+  (ef/at "#experiment-title" (ef/content "Primes to 100"))
   (setup (range 2 101) prime-reaction))
+
+(defn small-example-max []
+  (ef/at "#experiment-title" (ef/content "Max Example with Two Molecules"))
+  (setup-mols example-maxs-mols max-reaction))
+
+(defn max-to-99 []
+  (ef/at "#experiment-title" (ef/content "Max to 99"))
+  (setup (range 1 100) max-reaction))
 
 
 (clear)
@@ -197,5 +218,17 @@
                                      (stop)
                                      (<! (timeout 1000))
                                      (restart)
-                                     (primes-to-100))))
+                                     (primes-to-100)))
+       "#small-max-button" (ev/listen :click
+                                        #(go
+                                           (stop)
+                                           (<! (timeout 1000))
+                                           (restart)
+                                           (small-example-max)))
+       "#max-button" (ev/listen :click
+                                  #(go
+                                     (stop)
+                                     (<! (timeout 1000))
+                                     (restart)
+                                     (max-to-99))))
 
