@@ -108,28 +108,28 @@
         collided-with (filter (fn [b] (collide? b (:x molecule) (:y molecule) d)) rest-molecules)]
     (first collided-with)))
 
-(defn molecule-reaction [mol-state]
+(defn molecule-reaction [mol-state reaction-fn]
   (go-loop []
     (when @running
       (<! (timeout 60))
       (let [mstate (get @world (:id mol-state))
             collision-mol (find-collision mstate)
             new-state (if collision-mol
-                        (-> mstate (prime-reaction collision-mol) (move-molecule true) (move-molecule false))
+                        (-> mstate (reaction-fn collision-mol) (move-molecule true) (move-molecule false))
                         (move-molecule mstate false))]
         (swap! world assoc  (:id mol-state) new-state)
         (when collision-mol
           (swap! world assoc (:id collision-mol) (-> collision-mol (move-molecule true) (move-molecule false)))))
       (recur))))
 
-(defn setup-mols [init-mols]
+(defn setup-mols [init-mols reaction-fn]
   (reset! world (zipmap (map :id init-mols) init-mols))
   (doseq [mol init-mols]
-    (molecule-reaction mol)))
+    (molecule-reaction mol reaction-fn)))
 
-(defn setup [vals]
+(defn setup [vals reaction-fn]
   (let [init-mols (gen-molecules vals)]
-    (setup-mols init-mols)))
+    (setup-mols init-mols reaction-fn)))
 
 (defn measurement []
   (sort (distinct (map :val (vals @world)))))
@@ -171,10 +171,10 @@
                    {:id 2 :x 100 :y 200 :val 18 :color "lightgreen" :dx 0.5 :dy 0.0}])
 
 (defn small-example-primes []
-  (setup-mols example-mols))
+  (setup-mols example-mols prime-reaction))
 
 (defn primes-to-100 []
-  (setup (range 2 101)))
+  (setup (range 2 101) prime-reaction))
 
 
 (clear)
