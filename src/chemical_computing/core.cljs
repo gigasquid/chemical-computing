@@ -29,10 +29,14 @@
   (set! (.-fillStyle context) color)
   (set! (.-globalAlpha context) opacity))
 
-(defn setText [context color]
+(defn setText [context color style]
   (set! (.-fillStyle context) color)
-  (set! (.-font context) "bold 11px Courier"))
+  (set! (.-font context) style))
 
+(defn setLoading [context]
+  (doto context
+    (setText "black" "bold 40px Courier")
+    (.fillText "Ready?"250 350)))
 
 (defn clear []
   (doto context
@@ -47,7 +51,7 @@
        .closePath
        .fill )
   (doto context
-    (setText "black")
+    (setText "black" "bold 11px Courier")
     (.fillText (str val) (- x 7) (+ y 5))))
 
 (defn draw-molecules [state]
@@ -140,14 +144,16 @@
 
 (defn tick []
   (clear)
-  (draw-molecules (vals @world))
-  (let [answer (measurement)]
-     (ef/at "#answer" (ef/content (str  answer))
-            "#not-primes" (ef/content (str (last answer ))))))
+  (if @running
+    (do (draw-molecules (vals @world))
+        (let [answer (measurement)]
+          (ef/at "#answer" (ef/content (str  answer))
+                 "#not-primes" (ef/content (str (last answer))))))
+    (setLoading context)))
 
 (defn time-loop []
   (go
-    (<! (timeout 60))
+    (<! (timeout 30))
     (tick)
     (.requestAnimationFrame js/window time-loop)))
 
@@ -167,7 +173,8 @@
   (clear)
   (start))
 
-(restart)
+(clear)
+(start)
 (run)
 
 ;
@@ -184,17 +191,17 @@
 
 
 (ef/at "#small-prime-button" (ev/listen :click
-                                        #(do
+                                        #(go
                                            (stop)
+                                           (<! (timeout 1000))
                                            (let [example-mols [{:id 1 :x 200 :y 200 :val 3 :color "red" :dx -0.3 :dy 0.0}
                                                                {:id 2 :x 100 :y 200 :val 18 :color "lightgreen" :dx 0.3 :dy 0.0}]]
                                              (restart)
                                              (setup-mols example-mols))))
        "#prime-button" (ev/listen :click
-                                  #(do
+                                  #(go
                                      (stop)
+                                     (<! (timeout 1000))
                                      (restart)
-                                     (setup (range 2 101))))
-       "#stop-button" (ev/listen :click
-                                  #(do (stop))))
+                                     (setup (range 2 101)))))
 
