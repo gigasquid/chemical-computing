@@ -54,14 +54,18 @@
   (doall (map draw-molecule state)))
 
 (defn move-molecule [{:keys [x y dx dy] :as molecule} collide?]
-  (let [mx (+ (* dx (if collide? (rand-int d) step)) x)
+  (let [dx (if collide? (* -1 dx) dx)
+        dy (if collide? (* -1 dy) dy)
+        mx (+ (* dx (if collide? (rand-int d) step)) x)
         my (+ (* dy (if collide? (rand-int d) step)) y)
         newx (if (< (+ (* 2 d) width) mx) (* dx step) mx)
         newx (if (> (- (* 2 d)) newx) (- width mx) newx)
         newy (if (< (+ (* 2 d) height)  my) (* dy step) my)
         newy (if (> (- (* 2 d)) newy) (- height my) newy)]
    (merge molecule {:x newx
-                :y newy})))
+                    :y newy
+                    :dx dx
+                    :dy dy})))
 
 (defn move-molecules [molecules]
   (map #(move-molecule % false) molecules))
@@ -81,14 +85,11 @@
 
 (defn prime-reaction [molecule-a molecule-b]
   (let [a (:val molecule-a)
-        b (:val molecule-b)
-        new-molecule-a (assoc molecule-a :dx (* -1 (:dx molecule-a))
-                                 :dy (* -1 (:dy molecule-a)))
-        new-molecule-a (move-molecule new-molecule-a true)]
+        b (:val molecule-b)]
    (if (and (not= a b)
             (zero? (mod a b)))
-     (assoc new-molecule-a :val (/ a b))
-     new-molecule-a)))
+     (assoc molecule-a :val (/ a b))
+     molecule-a)))
 
 
 (defn gen-molecule [id val]
@@ -112,17 +113,18 @@
     (first collided-with)))
 
 (defn molecule-reaction [mol-state]
-  (go-loop [mstate mol-state]
+  (go-loop []
     (when @running
-      (<! (timeout 30))
-          (let [collision-mol (find-collision mstate)
-                new-state (if collision-mol
-                            (-> mstate (prime-reaction collision-mol) (move-molecule true))
-                            (move-molecule mstate false))]
-            (swap! world assoc  (:id new-state) new-state)
-            (println :collision-mol collision-mol (move-molecule collision-mol true))
-            (when collision-mol (swap! world assoc (:id collision-mol) (move-molecule collision-mol true)))
-            (recur new-state)))))
+      (<! (timeout 60))
+      (let [mstate (get @world (:id mol-state))
+            collision-mol (find-collision mstate)
+            new-state (if collision-mol
+                        (-> mstate (prime-reaction collision-mol) (move-molecule true) (move-molecule false))
+                        (move-molecule mstate false))]
+        (swap! world assoc  (:id mol-state) new-state)
+        (when collision-mol
+          (swap! world assoc (:id collision-mol) (-> collision-mol (move-molecule true) (move-molecule false)))))
+      (recur))))
 
 (defn setup-mols [init-mols]
   (reset! world (zipmap (map :id init-mols) init-mols))
@@ -181,7 +183,6 @@
 
 
 
-                                     (setup (range 2 10))
 (ef/at "#small-prime-button" (ev/listen :click
                                         #(do
                                            (stop)
