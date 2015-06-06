@@ -10,8 +10,6 @@
 
 ;; define your app data so that it doesn't get over-written on reload
 
-(defonce app-state (atom []))
-
 (def canvas (-> js/document (.getElementById "canvas")))
 (def context (.getContext canvas "2d"))
 (def width (.-width canvas))
@@ -36,7 +34,7 @@
 (defn setLoading [context]
   (doto context
     (setText "grey" "bold 30px Arial")
-    (.fillText "Ready?" 200 250)))
+    (.fillText "Ready?" 180 250)))
 
 (defn clear []
   (doto context
@@ -71,9 +69,6 @@
                     :dx dx
                     :dy dy})))
 
-(defn move-molecules [molecules]
-  (map #(move-molecule % false) molecules))
-
 (defn pick-color []
   (first (shuffle colors)))
 
@@ -95,7 +90,6 @@
      (assoc molecule-a :val (/ a b))
      molecule-a)))
 
-
 (defn gen-molecule [id val]
   {:id id
    :x (rand-int width)
@@ -105,11 +99,9 @@
    :dx (* (+ 0.5 (rand-int 3)) (rand-dx-dy))
    :dy (* (+ 0.5 (rand-int 3)) (rand-dx-dy))})
 
-
 (defn gen-molecules [vals]
   (let [n (count vals)]
     (map gen-molecule (range n) vals)))
-
 
 (defn find-collision [molecule]
   (let [rest-molecules (remove (fn [b] (= (:id molecule) (:id b))) (vals @world))
@@ -173,27 +165,37 @@
   (clear)
   (start))
 
+;; Experiments
+
+(def example-mols [{:id 1 :x 200 :y 200 :val 3 :color "red" :dx -0.5 :dy 0.0}
+                   {:id 2 :x 100 :y 200 :val 18 :color "lightgreen" :dx 0.5 :dy 0.0}])
+
+(defn small-example-primes []
+  (setup-mols example-mols))
+
+(defn primes-to-100 []
+  (setup (range 2 101)))
+
+
 (clear)
 (start)
 (run)
 
-
+(small-example-primes)
 
 ;; Button event handling
 
-(def example-mols [{:id 1 :x 200 :y 200 :val 3 :color "red" :dx -0.3 :dy 0.0}
-                   {:id 2 :x 100 :y 200 :val 18 :color "lightgreen" :dx 0.3 :dy 0.0}])
 
 (ef/at "#small-prime-button" (ev/listen :click
                                         #(go
                                            (stop)
                                            (<! (timeout 1000))
                                            (restart)
-                                           (setup-mols example-mols)))
+                                           (small-example-primes)))
        "#prime-button" (ev/listen :click
                                   #(go
                                      (stop)
                                      (<! (timeout 1000))
                                      (restart)
-                                     (setup (range 2 101)))))
+                                     (primes-to-100))))
 
