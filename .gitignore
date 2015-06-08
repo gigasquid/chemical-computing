@@ -11,3 +11,4 @@ pom.xml
 .lein-plugins/
 .repl
 .nrepl-port
+*DS_Store
