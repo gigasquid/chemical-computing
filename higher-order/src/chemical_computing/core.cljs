@@ -18,7 +18,7 @@
 (def d 10)
 (def opacity 1.0)
 (def step 2)
-(def colors ["red" "pink" "lightgray" "lightblue" "green" "lightgreen" "orange" "yellow"])
+(def colors ["red" "pink" "lightblue" "green" "lightgreen" "orange" "yellow"])
 (defonce world (atom {}))
 (def running (atom false))
 (def mol-id-counter (atom 0))
@@ -42,20 +42,24 @@
     (setColor background)
     (.fillRect  0 0 width height)))
 
-(defn draw-circle [context color x y]
+(defn draw-circle [context color diam x y]
   (doto context
     (setColor color)
     .beginPath
-    (.arc  x y d 0 (* 2 Math/PI) true)
+    (.arc  x y diam 0 (* 2 Math/PI) true)
     .closePath
     .fill ))
 
-(defn draw-molecule [{:keys [x y val color]}]
-  (let [display-val (if (fn? val) "fn" val)]
-    (draw-circle context color x y)
-    (doto context
-      (setText "black" "bold 11px Courier")
-      (.fillText (str display-val) (- x 7) (+ y 5)))))
+(defn draw-molecule [{:keys [x y val color args]}]
+  (when val
+    (let [display-val (if (fn? val) "fn" val)]
+     (when (fn? val)
+       (doseq [n (range 1 (inc (count args)))]
+         (draw-circle context (last (take n (cycle colors))) (* n 1.5 d) x y)))
+     (draw-circle context color d x y)
+     (doto context
+       (setText "black" "bold 11px Courier")
+       (.fillText (str display-val) (- x 7) (+ y 5))))))
 
 (defn draw-molecules [state]
   (doall (map draw-molecule state)))
@@ -164,10 +168,6 @@
       :else
       [mol1 mol2])))
 
-(println "higher-order-reaction" (higher-order-reaction
-                                  {:id 1 :val foo :args [] :dx 1 :dy 1}
-                                  {:id 2 :val 1 :args [] :dx 2 :dy 2} ))
-
 (defn hatch? [mstate]
   (when (fn? (:val mstate))
     (react-fn-ready-to-eval? (:val mstate) (:args mstate))))
@@ -196,7 +196,7 @@
 (defn molecule-reaction [mol-state]
   (go-loop []
     (when (and @running (get @world (:id mol-state)))
-      (<! (timeout 100))
+      (<! (timeout 60))
       (let [mstate (get @world (:id mol-state))
             collision-mol (find-collision mstate)]
         (cond
