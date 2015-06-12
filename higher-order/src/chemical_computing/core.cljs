@@ -247,8 +247,9 @@
 
 (defn prime-reaction-reducing [a b]
   (if (and (not= a b)
+           (> a b)
            (zero? (mod a b)))
-    [(/ a b)]
+    [b]
     [a b]))
 
 
@@ -279,9 +280,13 @@
   (ef/at "#experiment-title" (ef/content "Higher Order Reducing Prime Example with Two Molecules"))
   (setup-mols example-primes-reducing-mols))
 
-(defn primes-to-100 []
+(defn primes-to-50 []
   (ef/at "#experiment-title" (ef/content "Primes to 50"))
   (setup-mols (concat (gen-molecules (range 2 51)) (repeatedly 25 #(gen-function-molecule prime-reaction)))))
+
+(defn reducing-primes-to-50 []
+  (ef/at "#experiment-title" (ef/content "Reducing Primes to 50"))
+  (setup-mols (concat (gen-molecules (range 2 51)) (repeatedly 25 #(gen-function-molecule prime-reaction-reducing)))))
 
 (defn small-example-max []
   (ef/at "#experiment-title" (ef/content "Max Example with Two Molecules"))
@@ -321,7 +326,14 @@
                                      (stop)
                                      (<! (timeout 1000))
                                      (restart)
-                                     (primes-to-100)))
+                                     (primes-to-50)))
+
+       "#prime-reducing-button" (ev/listen :click
+                                  #(go
+                                     (stop)
+                                     (<! (timeout 1000))
+                                     (restart)
+                                     (reducing-primes-to-50)))
        "#small-max-button" (ev/listen :click
                                         #(go
                                            (stop)
