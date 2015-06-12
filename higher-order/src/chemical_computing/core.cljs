@@ -21,6 +21,7 @@
 (def colors ["red" "pink" "lightgray" "lightblue" "green" "lightgreen" "orange" "yellow"])
 (defonce world (atom {}))
 (def running (atom false))
+(def mol-id-counter (atom 0))
 
 
 (defn setColor [context color]
@@ -41,16 +42,20 @@
     (setColor background)
     (.fillRect  0 0 width height)))
 
+(defn draw-circle [context color x y]
+  (doto context
+    (setColor color)
+    .beginPath
+    (.arc  x y d 0 (* 2 Math/PI) true)
+    .closePath
+    .fill ))
+
 (defn draw-molecule [{:keys [x y val color]}]
-  (doto context
-       (setColor color)
-       .beginPath
-       (.arc  x y d 0 (* 2 Math/PI) true)
-       .closePath
-       .fill )
-  (doto context
-    (setText "black" "bold 11px Courier")
-    (.fillText (str val) (- x 7) (+ y 5))))
+  (let [display-val (if (fn? val) "fn" val)]
+    (draw-circle context color x y)
+    (doto context
+      (setText "black" "bold 11px Courier")
+      (.fillText (str display-val) (- x 7) (+ y 5)))))
 
 (defn draw-molecules [state]
   (doall (map draw-molecule state)))
@@ -98,8 +103,8 @@
       (assoc molecule-a :val b)
       molecule-a)))
 
-(defn gen-molecule [id val]
-  {:id id
+(defn gen-molecule [val]
+  {:id (swap! mol-id-counter inc)
    :x (rand-int width)
    :y (rand-int height)
    :val val
@@ -109,7 +114,7 @@
 
 (defn gen-molecules [vals]
   (let [n (count vals)]
-    (map gen-molecule (range n) vals)))
+    (map gen-molecule vals)))
 
 (defn find-collision [molecule]
   (let [rest-molecules (remove (fn [b] (= (:id molecule) (:id b))) (vals @world))
@@ -119,26 +124,29 @@
 
 
 (defn foo [x y]
-  (+ x y))
+  [(+ x y) y])
 
 (defn react-fn-ready-to-eval? [react-fn arglist]
   (let [react-fn-args-list  (.-length react-fn)]
-    (= 2 (count arglist))))
+    (= react-fn-args-list (count arglist))))
 
-(defn higher-order-capture-or-eval [fn-mol val-mol]
-  (println "higher-order")
+
+(defn higher-order-eval [fn-mol]
   (let [react-fn (:val fn-mol)
-        val (:val val-mol)
-        react-args (conj (:args fn-mol) val)]
-    (if (react-fn-ready-to-eval? react-fn react-args)
-      (let [result-val (apply react-fn react-args)
-            result-mol (gen-molecule (:id val-mol) result-val)]
-        [(assoc fn-mol :args [])
-         (assoc result-mol :x (+ d (:x fn-mol))
-                           :y (+ d (:y fn-mol)))])
-      [(assoc fn-mol :args react-args) :destroy])))
+        react-args (:args fn-mol)
+        result-vals (apply react-fn react-args)
+        result-mols (mapv #(gen-molecule %) result-vals)]
+    (mapv #(assoc % :x (+ d (:x fn-mol)) :y (+ d (:y fn-mol))) result-mols)))
 
-(println "carin")
+(defn higher-order-capture [fn-mol val-mol]
+  (println "higher-order")
+  (let [react-fn-args (:args fn-mol)
+        react-fn (:val fn-mol)]
+    (if (react-fn-ready-to-eval? react-fn react-fn-args)
+      [fn-mol val-mol]
+      [(assoc fn-mol :args (conj react-fn-args (:val val-mol)))
+       (assoc val-mol :val :destroy)])))
+
 
 (defn higher-order-reaction [mol1 mol2]
   (let [v1 (:val mol1)
@@ -148,10 +156,10 @@
       [mol1 mol2]
 
       (fn? v1)
-      (higher-order-capture-or-eval mol1 mol2)
+      (higher-order-capture mol1 mol2)
 
       (fn? v2)
-      (reverse (higher-order-capture-or-eval mol2 mol1))
+      (higher-order-capture mol2 mol1)
 
       :else
       [mol1 mol2])))
@@ -160,30 +168,57 @@
                                   {:id 1 :val foo :args [] :dx 1 :dy 1}
                                   {:id 2 :val 1 :args [] :dx 2 :dy 2} ))
 
+(defn hatch? [mstate]
+  (when (fn? (:val mstate))
+    (react-fn-ready-to-eval? (:val mstate) (:args mstate))))
 
-(defn molecule-reaction [mol-state reaction-fn]
+
+(declare molecule-reaction)
+
+(defn hatch [mstate]
+  (let [result-mols (higher-order-eval mstate)
+        _ (println :result-mols result-mols)
+        clean-mstate (assoc mstate :args [])
+        _ (println :clean-mstate clean-mstate)]
+    (swap! world assoc (:id mstate) (-> clean-mstate (move-molecule true) (move-molecule false)))
+    (mapv (fn [m] (swap! world assoc (:id m) (-> m (move-molecule true) (move-molecule false)))) result-mols)
+    (mapv (fn [m] (molecule-reaction m)) result-mols)))
+
+
+(defn collision-reaction [mstate collision-mol]
+  (let [new-mols (higher-order-reaction mstate collision-mol)
+        mols-to-destroy (filter (fn [m] (= :destroy (:val m))) new-mols)
+        mols-to-bounce (remove (fn [m] (= :destroy (:val m))) new-mols)]
+    (mapv (fn [m] (swap! world dissoc (:id m))) mols-to-destroy)
+    (mapv (fn [m] (swap! world assoc (:id m) (-> m (move-molecule true) (move-molecule false)))) mols-to-bounce)
+    (println "done" @world)))
+
+(defn molecule-reaction [mol-state]
   (go-loop []
-    (when @running
-      (<! (timeout 60))
+    (when (and @running (get @world (:id mol-state)))
+      (<! (timeout 100))
       (let [mstate (get @world (:id mol-state))
-            collision-mol (find-collision mstate) ]
-        (if collision-mol
-          (let [[new-mol1 new-mol2] (higher-order-reaction mstate collision-mol)]
-            (if (= :destroy new-mol2)
-              (swap! world dissoc (:id collision-mol))
-              (swap! world (:id mol-state) (-> new-mol1 (move-molecule true) (move-molecule false))
-                     (:id new-mol2) (-> new-mol2 (move-molecule true) (move-molecule false)))))
+            collision-mol (find-collision mstate)]
+        (cond
+
+          collision-mol
+          (collision-reaction mstate collision-mol)
+
+          (hatch? mstate)
+          (hatch mstate)
+
+          :else
           (swap! world assoc (:id mol-state) (move-molecule mstate false))))
       (recur))))
 
-(defn setup-mols [init-mols reaction-fn]
+(defn setup-mols [init-mols]
   (reset! world (zipmap (map :id init-mols) init-mols))
   (doseq [mol init-mols]
-    (molecule-reaction mol reaction-fn)))
+    (molecule-reaction mol)))
 
-(defn setup [vals reaction-fn]
+(defn setup [vals]
   (let [init-mols (gen-molecules vals)]
-    (setup-mols init-mols reaction-fn)))
+    (setup-mols init-mols)))
 
 (defn measurement []
   (sort (distinct (map :val (vals @world)))))
@@ -192,7 +227,7 @@
   (clear)
   (if @running
     (do (draw-molecules (vals @world))
-        (let [answer (measurement)]
+        #_(let [answer (measurement)]
           (ef/at "#answer" (ef/content (str  answer))
                  "#not-primes" (ef/content (str (last answer))))))
     (setLoading context)))
@@ -222,33 +257,35 @@
 ;; Experiments
 
 
-(def example-primes-mols [{:id 1 :x 200 :y 200 :val 3 :args [] :color "red" :dx -0.5 :dy 0.0}
-                          {:id 2 :x 100 :y 200 :val 18 :args [] :color "lightgreen" :dx 0.5 :dy 0.0}
-                          {:id 3 :x 300 :y 200 :val prime-reaction :args [] :color "lightgray" :dx 0.3 :dy 0.0}])
+(def example-primes-mols [{:id (swap! mol-id-counter inc) :x 200 :y 200 :val 3 :args [] :color "red" :dx -0.5 :dy 0.0}
+                          {:id (swap! mol-id-counter inc) :x 100 :y 200 :val 18 :args [] :color "lightgreen" :dx 0.5 :dy 0.0}
+                          {:id (swap! mol-id-counter inc) :x 300 :y 200 :val foo :args [] :color "lightgray" :dx 0.3 :dy 0.0}])
 
 (def example-maxs-mols [{:id 1 :x 200 :y 200 :val 20 :color "lightblue" :dx -0.5 :dy 0.0}
                         {:id 2 :x 100 :y 200 :val 2 :color "pink" :dx 0.5 :dy 0.0 }])
 
 (defn small-example-primes []
   (ef/at "#experiment-title" (ef/content "Prime Example with Two Molecules"))
-  (setup-mols example-primes-mols prime-reaction))
+  (setup-mols example-primes-mols))
 
 (defn primes-to-100 []
   (ef/at "#experiment-title" (ef/content "Primes to 100"))
-  (setup (range 2 101) prime-reaction))
+  (setup (range 2 101)))
 
 (defn small-example-max []
   (ef/at "#experiment-title" (ef/content "Max Example with Two Molecules"))
-  (setup-mols example-maxs-mols max-reaction))
+  (setup-mols example-maxs-mols))
 
 (defn max-to-99 []
   (ef/at "#experiment-title" (ef/content "Max to 99"))
-  (setup (range 1 100) max-reaction))
+  (setup (range 1 100)))
 
 
 (clear)
 (start)
 (run)
+
+(small-example-primes)
 
 
 ;; Button event handling
