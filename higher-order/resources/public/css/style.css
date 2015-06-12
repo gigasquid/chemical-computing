@@ -2,7 +2,11 @@
 
 h3,h2,h1{
     margin-left: 100px;
+    width: 500px;
 }
+
+#measurement-desc{
+   width: 500px;}
 
 .plabel {
     font-weight: bold;

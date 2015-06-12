@@ -91,13 +91,7 @@
         dy (Math/abs (- (:y molecule) y))]
     (and (> molecule-d dx) (> molecule-d dy))))
 
-(defn prime-reaction [molecule-a molecule-b]
-  (let [a (:val molecule-a)
-        b (:val molecule-b)]
-   (if (and (not= a b)
-            (zero? (mod a b)))
-     (assoc molecule-a :val (/ a b))
-     molecule-a)))
+
 
 (defn max-reaction [molecule-a molecule-b]
   (let [a (:val molecule-a)
@@ -125,15 +119,9 @@
         collided-with (filter (fn [b] (collide? b (:x molecule) (:y molecule) d)) rest-molecules)]
     (first collided-with)))
 
-
-
-(defn foo [x y]
-  [(+ x y) y])
-
 (defn react-fn-ready-to-eval? [react-fn arglist]
   (let [react-fn-args-list  (.-length react-fn)]
     (= react-fn-args-list (count arglist))))
-
 
 (defn higher-order-eval [fn-mol]
   (let [react-fn (:val fn-mol)
@@ -143,14 +131,12 @@
     (mapv #(assoc % :x (+ d (:x fn-mol)) :y (+ d (:y fn-mol))) result-mols)))
 
 (defn higher-order-capture [fn-mol val-mol]
-  (println "higher-order")
   (let [react-fn-args (:args fn-mol)
         react-fn (:val fn-mol)]
     (if (react-fn-ready-to-eval? react-fn react-fn-args)
       [fn-mol val-mol]
       [(assoc fn-mol :args (conj react-fn-args (:val val-mol)))
        (assoc val-mol :val :destroy)])))
-
 
 (defn higher-order-reaction [mol1 mol2]
   (let [v1 (:val mol1)
@@ -177,9 +163,7 @@
 
 (defn hatch [mstate]
   (let [result-mols (higher-order-eval mstate)
-        _ (println :result-mols result-mols)
-        clean-mstate (assoc mstate :args [])
-        _ (println :clean-mstate clean-mstate)]
+        clean-mstate (assoc mstate :args [])]
     (swap! world assoc (:id mstate) (-> clean-mstate (move-molecule true) (move-molecule false)))
     (mapv (fn [m] (swap! world assoc (:id m) (-> m (move-molecule true) (move-molecule false)))) result-mols)
     (mapv (fn [m] (molecule-reaction m)) result-mols)))
@@ -190,8 +174,7 @@
         mols-to-destroy (filter (fn [m] (= :destroy (:val m))) new-mols)
         mols-to-bounce (remove (fn [m] (= :destroy (:val m))) new-mols)]
     (mapv (fn [m] (swap! world dissoc (:id m))) mols-to-destroy)
-    (mapv (fn [m] (swap! world assoc (:id m) (-> m (move-molecule true) (move-molecule false)))) mols-to-bounce)
-    (println "done" @world)))
+    (mapv (fn [m] (swap! world assoc (:id m) (-> m (move-molecule true) (move-molecule false)))) mols-to-bounce)))
 
 (defn molecule-reaction [mol-state]
   (go-loop []
@@ -208,7 +191,7 @@
           (hatch mstate)
 
           :else
-          (swap! world assoc (:id mol-state) (move-molecule mstate false))))
+          (when mstate(swap! world assoc (:id mol-state) (move-molecule mstate false)))))
       (recur))))
 
 (defn setup-mols [init-mols]
@@ -221,13 +204,14 @@
     (setup-mols init-mols)))
 
 (defn measurement []
-  (sort (distinct (map :val (vals @world)))))
+  (sort (distinct (flatten (map (fn [m] (let [v (:val m)] (if (fn? v) (:args m) v)))
+                        (vals @world))))))
 
 (defn tick []
   (clear)
   (if @running
     (do (draw-molecules (vals @world))
-        #_(let [answer (measurement)]
+        (let [answer (measurement)]
           (ef/at "#answer" (ef/content (str  answer))
                  "#not-primes" (ef/content (str (last answer))))))
     (setLoading context)))
@@ -256,10 +240,16 @@
 
 ;; Experiments
 
+(defn prime-reaction [a b]
+  (if (and (not= a b)
+           (zero? (mod a b)))
+    [(/ a b) b]
+    [a b]))
+
 
 (def example-primes-mols [{:id (swap! mol-id-counter inc) :x 200 :y 200 :val 3 :args [] :color "red" :dx -0.5 :dy 0.0}
                           {:id (swap! mol-id-counter inc) :x 100 :y 200 :val 18 :args [] :color "lightgreen" :dx 0.5 :dy 0.0}
-                          {:id (swap! mol-id-counter inc) :x 300 :y 200 :val foo :args [] :color "lightgray" :dx 0.3 :dy 0.0}])
+                          {:id (swap! mol-id-counter inc) :x 300 :y 200 :val prime-reaction :args [] :color "lightgray" :dx 0.3 :dy 0.0}])
 
 (def example-maxs-mols [{:id 1 :x 200 :y 200 :val 20 :color "lightblue" :dx -0.5 :dy 0.0}
                         {:id 2 :x 100 :y 200 :val 2 :color "pink" :dx 0.5 :dy 0.0 }])
