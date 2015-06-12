@@ -108,7 +108,8 @@
    :val val
    :color (rand-nth colors)
    :dx (* (+ 0.5 (rand-int 3)) (rand-dx-dy))
-   :dy (* (+ 0.5 (rand-int 3)) (rand-dx-dy))})
+   :dy (* (+ 0.5 (rand-int 3)) (rand-dx-dy))
+   :args []})
 
 (defn gen-molecules [vals]
   (let [n (count vals)]
@@ -191,7 +192,7 @@
           (hatch mstate)
 
           :else
-          (when mstate(swap! world assoc (:id mol-state) (move-molecule mstate false)))))
+          (when mstate (swap! world assoc (:id mol-state) (move-molecule mstate false)))))
       (recur))))
 
 (defn setup-mols [init-mols]
@@ -199,21 +200,18 @@
   (doseq [mol init-mols]
     (molecule-reaction mol)))
 
-(defn setup [vals]
-  (let [init-mols (gen-molecules vals)]
-    (setup-mols init-mols)))
-
 (defn measurement []
-  (sort (distinct (flatten (map (fn [m] (let [v (:val m)] (if (fn? v) (:args m) v)))
-                        (vals @world))))))
+  (let [mvals (map (fn [m] (let [v (:val m)]
+                            (when (zero? v) (println "zero! " m)) (if (fn? v) (:args m) v)))
+                   (vals @world))]
+    (->> mvals flatten (remove nil?) sort distinct )))
 
 (defn tick []
   (clear)
   (if @running
     (do (draw-molecules (vals @world))
         (let [answer (measurement)]
-          (ef/at "#answer" (ef/content (str  answer))
-                 "#not-primes" (ef/content (str (last answer))))))
+          (ef/at "#answer" (ef/content (str  answer)))))
     (setLoading context)))
 
 (defn time-loop []
@@ -242,33 +240,57 @@
 
 (defn prime-reaction [a b]
   (if (and (not= a b)
+           (> a b)
            (zero? (mod a b)))
     [(/ a b) b]
     [a b]))
+
+(defn prime-reaction-reducing [a b]
+  (if (and (not= a b)
+           (zero? (mod a b)))
+    [(/ a b)]
+    [a b]))
+
+
+(defn max-reaction [a b]
+  (if (> a b) [a a] [a b]))
+
+
+(defn gen-function-molecule [fn]
+  (assoc (gen-molecule fn) :color "lightgray"))
 
 
 (def example-primes-mols [{:id (swap! mol-id-counter inc) :x 200 :y 200 :val 3 :args [] :color "red" :dx -0.5 :dy 0.0}
                           {:id (swap! mol-id-counter inc) :x 100 :y 200 :val 18 :args [] :color "lightgreen" :dx 0.5 :dy 0.0}
                           {:id (swap! mol-id-counter inc) :x 300 :y 200 :val prime-reaction :args [] :color "lightgray" :dx 0.3 :dy 0.0}])
 
+(def example-primes-reducing-mols [{:id (swap! mol-id-counter inc) :x 200 :y 200 :val 3 :args [] :color "red" :dx -0.5 :dy 0.0}
+                          {:id (swap! mol-id-counter inc) :x 100 :y 200 :val 18 :args [] :color "lightgreen" :dx 0.5 :dy 0.0}
+                          {:id (swap! mol-id-counter inc) :x 300 :y 200 :val prime-reaction-reducing :args [] :color "lightgray" :dx 0.3 :dy 0.0}])
+
 (def example-maxs-mols [{:id 1 :x 200 :y 200 :val 20 :color "lightblue" :dx -0.5 :dy 0.0}
                         {:id 2 :x 100 :y 200 :val 2 :color "pink" :dx 0.5 :dy 0.0 }])
 
 (defn small-example-primes []
-  (ef/at "#experiment-title" (ef/content "Prime Example with Two Molecules"))
+  (ef/at "#experiment-title" (ef/content "Higher Order Prime Example with Two Molecules"))
   (setup-mols example-primes-mols))
 
+(defn small-example-primes-reducing []
+  (ef/at "#experiment-title" (ef/content "Higher Order Reducing Prime Example with Two Molecules"))
+  (setup-mols example-primes-reducing-mols))
+
 (defn primes-to-100 []
-  (ef/at "#experiment-title" (ef/content "Primes to 100"))
-  (setup (range 2 101)))
+  (ef/at "#experiment-title" (ef/content "Primes to 50"))
+  (setup-mols (concat (gen-molecules (range 2 51)) (repeatedly 25 #(gen-function-molecule prime-reaction)))))
 
 (defn small-example-max []
   (ef/at "#experiment-title" (ef/content "Max Example with Two Molecules"))
   (setup-mols example-maxs-mols))
 
-(defn max-to-99 []
-  (ef/at "#experiment-title" (ef/content "Max to 99"))
-  (setup (range 1 100)))
+(defn max-to-50 []
+  (ef/at "#experiment-title" (ef/content "Max to 50"))
+  (setup-mols (concat (gen-molecules (range 1 51)) (repeatedly 25 #(gen-function-molecule  max-reaction)))))
+
 
 
 (clear)
@@ -287,6 +309,13 @@
                                            (<! (timeout 1000))
                                            (restart)
                                            (small-example-primes)))
+
+       "#small-prime-reducing-button" (ev/listen :click
+                                        #(go
+                                           (stop)
+                                           (<! (timeout 1000))
+                                           (restart)
+                                           (small-example-primes-reducing)))
        "#prime-button" (ev/listen :click
                                   #(go
                                      (stop)
@@ -304,5 +333,5 @@
                                      (stop)
                                      (<! (timeout 1000))
                                      (restart)
-                                     (max-to-99))))
+                                     (max-to-50))))
 
