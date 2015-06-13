@@ -239,15 +239,13 @@
 ;; Experiments
 
 (defn prime-reaction [a b]
-  (if (and (not= a b)
-           (> a b)
+  (if (and (> a b)
            (zero? (mod a b)))
     [(/ a b) b]
     [a b]))
 
 (defn prime-reaction-reducing [a b]
-  (if (and (not= a b)
-           (> a b)
+  (if (and (> a b)
            (zero? (mod a b)))
     [b]
     [a b]))
@@ -255,6 +253,9 @@
 
 (defn max-reaction [a b]
   (if (> a b) [a a] [a b]))
+
+(defn max-reaction-reducing [a b]
+  (if (> a b) [a] [a b]))
 
 
 (defn gen-function-molecule [fn]
@@ -273,6 +274,10 @@
                         {:id 2 :x 100 :y 200 :val 20 :color "pink" :dx 0.5 :dy 0.0 }
                         {:id (swap! mol-id-counter inc) :x 300 :y 200 :val max-reaction :args [] :color "lightgray" :dx 0.3 :dy 0.0}])
 
+(def example-maxs-reducing-mols [{:id 1 :x 200 :y 200 :val 2 :color "lightblue" :dx -0.5 :dy 0.0}
+                                 {:id 2 :x 100 :y 200 :val 20 :color "pink" :dx 0.5 :dy 0.0 }
+                                 {:id (swap! mol-id-counter inc) :x 300 :y 200 :val max-reaction-reducing :args [] :color "lightgray" :dx 0.3 :dy 0.0}])
+
 (defn small-example-primes []
   (ef/at "#experiment-title" (ef/content "Higher Order Prime Example with Two Molecules"))
   (setup-mols example-primes-mols))
@@ -282,20 +287,28 @@
   (setup-mols example-primes-reducing-mols))
 
 (defn primes-to-50 []
-  (ef/at "#experiment-title" (ef/content "Primes to 50"))
+  (ef/at "#experiment-title" (ef/content "Primes to 50 with 25 Function Mols"))
   (setup-mols (concat (gen-molecules (range 2 51)) (repeatedly 25 #(gen-function-molecule prime-reaction)))))
 
 (defn reducing-primes-to-50 []
-  (ef/at "#experiment-title" (ef/content "Reducing Primes to 50"))
-  (setup-mols (concat (gen-molecules (range 2 51)) (repeatedly 25 #(gen-function-molecule prime-reaction-reducing)))))
+  (ef/at "#experiment-title" (ef/content "Reducing Primes to 50 with 10 Function Mols"))
+  (setup-mols (concat (gen-molecules (range 2 51)) (repeatedly 10 #(gen-function-molecule prime-reaction-reducing)))))
 
 (defn small-example-max []
   (ef/at "#experiment-title" (ef/content "Max Example with Two Molecules"))
   (setup-mols example-maxs-mols))
 
 (defn max-to-50 []
-  (ef/at "#experiment-title" (ef/content "Max to 50"))
+  (ef/at "#experiment-title" (ef/content "Max to 50 with 25 Function Mols"))
   (setup-mols (concat (gen-molecules (range 1 51)) (repeatedly 25 #(gen-function-molecule  max-reaction)))))
+
+(defn small-example-max-reducing []
+  (ef/at "#experiment-title" (ef/content "Reducing Max Example with Two Molecules"))
+  (setup-mols example-maxs-reducing-mols))
+
+(defn reducing-max-to-50 []
+  (ef/at "#experiment-title" (ef/content "Reducing Max to 50 with 1 Function Mol"))
+  (setup-mols (concat (gen-molecules (range 1 51)) (repeatedly 1 #(gen-function-molecule  max-reaction-reducing)))))
 
 
 
@@ -346,5 +359,18 @@
                                      (stop)
                                      (<! (timeout 1000))
                                      (restart)
-                                     (max-to-50))))
+                                     (max-to-50)))
+
+       "#small-max-reducing-button" (ev/listen :click
+                                        #(go
+                                           (stop)
+                                           (<! (timeout 1000))
+                                           (restart)
+                                           (small-example-max-reducing)))
+       "#max-reducing-button" (ev/listen :click
+                                  #(go
+                                     (stop)
+                                     (<! (timeout 1000))
+                                     (restart)
+                                     (reducing-max-to-50))))
 
