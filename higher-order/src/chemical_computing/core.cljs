@@ -269,8 +269,9 @@
                           {:id (swap! mol-id-counter inc) :x 100 :y 200 :val 18 :args [] :color "lightgreen" :dx 0.5 :dy 0.0}
                           {:id (swap! mol-id-counter inc) :x 300 :y 200 :val prime-reaction-reducing :args [] :color "lightgray" :dx 0.3 :dy 0.0}])
 
-(def example-maxs-mols [{:id 1 :x 200 :y 200 :val 20 :color "lightblue" :dx -0.5 :dy 0.0}
-                        {:id 2 :x 100 :y 200 :val 2 :color "pink" :dx 0.5 :dy 0.0 }])
+(def example-maxs-mols [{:id 1 :x 200 :y 200 :val 2 :color "lightblue" :dx -0.5 :dy 0.0}
+                        {:id 2 :x 100 :y 200 :val 20 :color "pink" :dx 0.5 :dy 0.0 }
+                        {:id (swap! mol-id-counter inc) :x 300 :y 200 :val max-reaction :args [] :color "lightgray" :dx 0.3 :dy 0.0}])
 
 (defn small-example-primes []
   (ef/at "#experiment-title" (ef/content "Higher Order Prime Example with Two Molecules"))
