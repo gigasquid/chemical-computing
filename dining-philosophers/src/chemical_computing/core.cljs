@@ -15,7 +15,6 @@
 (def width (.-width canvas))
 (def height (.-height canvas))
 (def background "white")
-(def d 10)
 (def opacity 1.0)
 (def step 2)
 (def colors ["red" "pink" "lightblue" "green" "lightgreen" "orange" "yellow"])
@@ -50,25 +49,14 @@
     .closePath
     .fill ))
 
-(defn diameter-by-val [val]
-  (cond
-    (and (fn? val) (= "eat" (.-name val)))
-    (* 2 d)
 
-    (and (fn? val) (= "think" (.-name val)))
-    (* 2 d)
-
-    :else
-    d))
-
-(defn draw-molecule [{:keys [x y val color args]}]
+(defn draw-molecule [{:keys [x y d val color args]}]
   (when val
     (let [display-val (if (fn? val) (.-name val) val)]
      (if  (fn? val)
        (doseq [n (range 1 (inc (count args)))]
          (draw-circle context (last (take n (cycle colors))) (* n 1.5 d) x y)))
-     (let [d (diameter-by-val val)]
-      (draw-circle context color d x y))
+     (draw-circle context color d x y)
      (doto context
        (setText "black" "bold 11px Courier")
        (.fillText (str display-val) (- x (* (count display-val) 3)) (+ y 5))))))
@@ -76,7 +64,7 @@
 (defn draw-molecules [state]
   (doall (map draw-molecule state)))
 
-(defn move-molecule [{:keys [x y dx dy] :as molecule} collide?]
+(defn move-molecule [{:keys [x y d dx dy] :as molecule} collide?]
   (let [dx (if collide? (* -1 dx) dx)
         dy (if collide? (* -1 dy) dy)
         mx (+ (* dx (if collide? (rand-int d) step)) x)
@@ -127,7 +115,7 @@
 
 (defn find-collision [molecule]
   (let [rest-molecules (remove (fn [b] (= (:id molecule) (:id b))) (vals @world))
-        collided-with (filter (fn [b] (collide? b (:x molecule) (:y molecule) d)) rest-molecules)]
+        collided-with (filter (fn [b] (collide? b (:x molecule) (:y molecule) (:d molecule))) rest-molecules)]
     (first collided-with)))
 
 (defn react-fn-ready-to-eval? [react-fn arglist]
@@ -139,7 +127,7 @@
         react-args (:args fn-mol)
         result-vals (apply react-fn react-args)
         result-mols (mapv #(gen-molecule %) result-vals)]
-    (mapv #(assoc % :x (+ d (:x fn-mol)) :y (+ d (:y fn-mol))) result-mols)))
+    (mapv #(assoc % :x (+ (:d fn-mol) (:x fn-mol)) :y (+ (:d fn-mol) (:y fn-mol))) result-mols)))
 
 (defn higher-order-capture [fn-mol val-mol]
   (let [react-fn-args (:args fn-mol)
@@ -267,6 +255,7 @@
   {:id (swap! mol-id-counter inc)
    :x x
    :y y
+   :d 10
    :val "f"
    :color "pink"
    :dx 0.0
@@ -277,6 +266,7 @@
   {:id (swap! mol-id-counter inc)
    :x x
    :y y
+   :d 20
    :val eat
    :color "lightgreen"
    :dx 0.0
@@ -287,6 +277,7 @@
   {:id (swap! mol-id-counter inc)
    :x x
    :y y
+   :d 20
    :val think
    :color "orange"
    :dx 0.0
