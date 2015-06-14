@@ -92,11 +92,9 @@
     (and (> molecule-d dx) (> molecule-d dy))))
 
 
-
 (defn max-reaction [molecule-a molecule-b]
   (let [a (:val molecule-a)
         b (:val molecule-b)]
-    (println :a a :b b)
     (if (> b a)
       (assoc molecule-a :val b)
       molecule-a)))
@@ -139,12 +137,22 @@
       [(assoc fn-mol :args (conj react-fn-args (:val val-mol)))
        (assoc val-mol :val :destroy)])))
 
+(defn higher-order-arg-exchange [fn-mol1 fn-mol2]
+  (let [fn-args-1-want (.-length (:val fn-mol1))
+        fn-args-1-has (count (:args fn-mol1))
+        will-take (- fn-args-1-want fn-args-1-has)
+        fn-args-2 (:args fn-mol2)
+        new-fn-args-1 (into [] (concat (:args fn-mol1) (take will-take fn-args-2)))
+        new-fn-args-2 (into [] (drop will-take fn-args-2))]
+    [(assoc fn-mol1 :args new-fn-args-1)
+     (assoc fn-mol2 :args new-fn-args-2)]))
+
 (defn higher-order-reaction [mol1 mol2]
   (let [v1 (:val mol1)
         v2 (:val mol2)]
     (cond
       (and (fn? v1) (fn? v2))
-      [mol1 mol2]
+      (higher-order-arg-exchange mol1 mol2)
 
       (fn? v1)
       (higher-order-capture mol1 mol2)
@@ -158,7 +166,6 @@
 (defn hatch? [mstate]
   (when (fn? (:val mstate))
     (react-fn-ready-to-eval? (:val mstate) (:args mstate))))
-
 
 (declare molecule-reaction)
 
@@ -270,8 +277,8 @@
                           {:id (swap! mol-id-counter inc) :x 100 :y 200 :val 18 :args [] :color "lightgreen" :dx 0.5 :dy 0.0}
                           {:id (swap! mol-id-counter inc) :x 300 :y 200 :val prime-reaction-reducing :args [] :color "lightgray" :dx 0.3 :dy 0.0}])
 
-(def example-maxs-mols [{:id 1 :x 200 :y 200 :val 2 :color "lightblue" :dx -0.5 :dy 0.0}
-                        {:id 2 :x 100 :y 200 :val 20 :color "pink" :dx 0.5 :dy 0.0 }
+(def example-maxs-mols [{:id (swap! mol-id-counter inc) :x 200 :y 200 :val 2 :color "lightblue" :dx -0.5 :dy 0.0}
+                        {:id (swap! mol-id-counter inc) :x 100 :y 200 :val 20 :color "pink" :dx 0.5 :dy 0.0 }
                         {:id (swap! mol-id-counter inc) :x 300 :y 200 :val max-reaction :args [] :color "lightgray" :dx 0.3 :dy 0.0}])
 
 (def example-maxs-reducing-mols [{:id 1 :x 200 :y 200 :val 2 :color "lightblue" :dx -0.5 :dy 0.0}
@@ -291,8 +298,8 @@
   (setup-mols (concat (gen-molecules (range 2 51)) (repeatedly 25 #(gen-function-molecule prime-reaction)))))
 
 (defn reducing-primes-to-50 []
-  (ef/at "#experiment-title" (ef/content "Reducing Primes to 50 with 10 Function Mols"))
-  (setup-mols (concat (gen-molecules (range 2 51)) (repeatedly 10 #(gen-function-molecule prime-reaction-reducing)))))
+  (ef/at "#experiment-title" (ef/content "Reducing Primes to 50 with 25 Function Mols"))
+  (setup-mols (concat (gen-molecules (range 2 51)) (repeatedly 25 #(gen-function-molecule prime-reaction-reducing)))))
 
 (defn small-example-max []
   (ef/at "#experiment-title" (ef/content "Max Example with Two Molecules"))
@@ -307,8 +314,8 @@
   (setup-mols example-maxs-reducing-mols))
 
 (defn reducing-max-to-50 []
-  (ef/at "#experiment-title" (ef/content "Reducing Max to 50 with 1 Function Mol"))
-  (setup-mols (concat (gen-molecules (range 1 51)) (repeatedly 1 #(gen-function-molecule  max-reaction-reducing)))))
+  (ef/at "#experiment-title" (ef/content "Reducing Max to 50 with 25 Function Mol"))
+  (setup-mols (concat (gen-molecules (range 1 51)) (repeatedly 25 #(gen-function-molecule  max-reaction-reducing)))))
 
 
 
