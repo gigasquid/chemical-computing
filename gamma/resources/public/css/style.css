@@ -9,9 +9,11 @@ h3,h2,h1{
     padding-right: 5px;
 }
 
+
 #controls {
     padding: 25px;
     margin-left: 75px;
+    width: 600px;
 }
 
 #canvas {

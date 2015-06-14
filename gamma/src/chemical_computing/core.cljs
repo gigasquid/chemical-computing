@@ -85,7 +85,7 @@
 (defn prime-reaction [molecule-a molecule-b]
   (let [a (:val molecule-a)
         b (:val molecule-b)]
-   (if (and (not= a b)
+   (if (and (> a b)
             (zero? (mod a b)))
      (assoc molecule-a :val (/ a b))
      molecule-a)))

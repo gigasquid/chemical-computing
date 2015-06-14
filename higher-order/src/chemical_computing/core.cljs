@@ -257,7 +257,6 @@
     [b]
     [a b]))
 
-
 (defn max-reaction [a b]
   (if (> a b) [a a] [a b]))
 
