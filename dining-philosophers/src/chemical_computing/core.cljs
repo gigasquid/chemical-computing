@@ -53,9 +53,6 @@
 (defn draw-molecule [{:keys [x y d val color args]}]
   (when val
     (let [display-val (if (fn? val) (.-name val) val)]
-     (if  (fn? val)
-       (doseq [n (range 1 (inc (count args)))]
-         (draw-circle context (last (take n (cycle colors))) (* n 1.5 d) x y)))
      (draw-circle context color d x y)
      (doto context
        (setText "black" "bold 11px Courier")
@@ -177,8 +174,9 @@
 
 (defn hatch [mstate]
   (let [result-mols (higher-order-eval mstate)
-        clean-mstate (assoc mstate :args [])]
-    (swap! world assoc (:id mstate) (-> clean-mstate (move-molecule true) (move-molecule false)))
+        new-y (if (neg? (:dy mstate)) 475 425)
+        clean-mstate (assoc mstate :args [] :y new-y)]
+    (swap! world assoc (:id mstate) (-> clean-mstate (move-molecule true)))
     (mapv (fn [m] (swap! world assoc (:id m) (-> m (move-molecule true) (move-molecule false)))) result-mols)
     (mapv (fn [m] (molecule-reaction m)) result-mols)))
 
