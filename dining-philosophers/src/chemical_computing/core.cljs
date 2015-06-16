@@ -326,36 +326,20 @@
    :allowed-arg-val "EP"})
 
 
-
-
-(def example-primes-mols (concat
+(def dining-mols (concat
                           (mapv gen-fork-molecule (range 25 500 50) (repeat 450))
                           (mapv gen-think-philosopher-molecule (range 50 500 50) (repeat 450))
                           (mapv gen-eat-molecule  (range 50 500 50) (repeat 300))
                           (mapv gen-think-molecule (range 50 500 50) (repeat 100))
                           ))
 
-(defn small-example-primes []
-  (ef/at "#experiment-title" (ef/content "Higher Order Prime Example with Two Molecules"))
-  (setup-mols example-primes-mols))
-
-
-
+(defn dining-philosophers []
+  (setup-mols dining-mols))
 
 (clear)
 (start)
 (run)
 
-(small-example-primes)
-
+(dining-philosophers)
 
 ;; Button event handling
-
-
-(ef/at "#small-prime-button" (ev/listen :click
-                                        #(go
-                                           (stop)
-                                           (<! (timeout 1000))
-                                           (restart)
-                                           (small-example-primes))))
-
