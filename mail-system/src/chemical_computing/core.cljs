@@ -269,16 +269,20 @@
       [{:move-to :right :new-val (:val mol)}]
       [{:move-to :left :new-val (:val mol)}])))
 
-(defn out-mail-a1 [mol])
-(defn in-mail-a1 [mol]
-  (println "updating mailbox with " mol)
+(defn in-mail-a1[mol key]
   (swap! in-mailboxes update-in [:a1] inc)
   [])
 
-(defn out-mail-b1 [mol])
+(defn in-mail-a2 [mol]
+  (swap! in-mailboxes update-in [:a2] inc)
+  [])
+
 (defn in-mail-b1 [mol]
-  (println "updating mailbox with " mol)
   (swap! in-mailboxes update-in [:b1] inc)
+  [])
+
+(defn in-mail-b2 [mol]
+  (swap! in-mailboxes update-in [:b2] inc)
   [])
 
 (defn gen-mail-molecule [x y val]
@@ -299,19 +303,6 @@
    :dy 0.0
    :allowed-arg-fn (fn [v] (= v mailbox-address))
    :args []})
-
-(defn gen-out-mailbox-molecule [x y val mailbox-address]
-  {:id (swap! mol-id-counter inc)
-   :x x
-   :y y
-   :d 40
-   :val val
-   :color "wheat"
-   :dx 0.0
-   :dy 0.0
-   :allowed-arg-fn (fn [v] (= v false))
-   :args []})
-
 
 (defn gen-network-molecule [x y]
   {:id (swap! mol-id-counter inc)
@@ -365,7 +356,9 @@
 (defn gen-messages [to n]
   (case to
     "b1" (mapv #(gen-mail-molecule % 200 to) (repeatedly n #(rand-int 200)))
-    "a1" (mapv #(gen-mail-molecule % 200 to) (repeatedly n #(- 600 (rand-int 200))))))
+    "b2" (mapv #(gen-mail-molecule % 400 to) (repeatedly n #(rand-int 200)))
+    "a1" (mapv #(gen-mail-molecule % 200 to) (repeatedly n #(- 600 (rand-int 200))))
+    "a2" (mapv #(gen-mail-molecule % 400 to) (repeatedly n #(- 600 (rand-int 200))))))
 
 
 (def mail-system-mols (concat
@@ -387,13 +380,16 @@
                        (mapv #(gen-membrane-mol 400 %) (range 450 630 40))
 
                        [(gen-server-molecule 400 200 server-b) (gen-inactive-server-molecule 400 300) (gen-server-molecule 400 400 server-b)]
-                       [(gen-in-mailbox-molecule 60 50 in-mail-a1 "a1")]
-                       [(gen-in-mailbox-molecule 540 50 in-mail-b1 "b1")]
+                       [(gen-in-mailbox-molecule 60 50 in-mail-a1 "a1") (gen-in-mailbox-molecule 540 50 in-mail-b1 "b1")]
+                       [(gen-in-mailbox-molecule 60 550 in-mail-a2 "a2") (gen-in-mailbox-molecule 540 550 in-mail-b2 "b2")]
 
                        (mapv #(gen-membrane-mol 0 %) (range 0 630 40))
                        (mapv #(gen-membrane-mol 600 %) (range 0 630 40))
-                       (gen-messages "b1" 20)
-                       (gen-messages "a1" 20)))
+                       (gen-messages "b1" 10)
+                       (gen-messages "b2" 10)
+                       (gen-messages "a1" 10)
+                       (gen-messages "a2" 10)
+                       ))
 
 (defn mail-system []
   (setup-mols mail-system-mols))
