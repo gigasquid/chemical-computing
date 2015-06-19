@@ -1,6 +1,8 @@
 (ns ^:figwheel-always chemical-computing.core
     (:require
-     [cljs.core.async :refer [timeout chan  >! <!]])
+     [cljs.core.async :refer [timeout chan  >! <!]]
+     [enfocus.core :as ef]
+     [enfocus.events :as ev])
     (:require-macros
      [cljs.core.async.macros :refer [go go-loop]]))
 
@@ -204,16 +206,23 @@
           (when mstate (swap! world assoc (:id mol-state) (move-molecule mstate false)))))
       (recur))))
 
+(def in-mailboxes (atom {}))
+
 (defn setup-mols [init-mols]
+  (reset! in-mailboxes {})
   (reset! world (zipmap (map :id init-mols) init-mols))
   (doseq [mol init-mols]
     (molecule-reaction mol)))
 
+(defn measurement []
+  (str "INBOXES " @in-mailboxes))
 
 (defn tick []
   (clear)
   (if @running
-    (do (draw-molecules (vals @world)))
+    (do (draw-molecules (vals @world))
+        (let [answer (measurement)]
+          (ef/at "#answer" (ef/content (str  answer)))))
     (setLoading context)))
 
 (defn time-loop []
@@ -260,19 +269,16 @@
       [{:move-to :right :new-val (:val mol)}]
       [{:move-to :left :new-val (:val mol)}])))
 
-(def in-mailboxes (atom {}))
-(defn update-mailboxes [mboxes mid]
-  (let [in-count (get mboxes mid 0)]
-    (assoc mboxes mid (inc in-count))))
-
 (defn out-mail-a1 [mol])
 (defn in-mail-a1 [mol]
-  (swap! in-mailboxes update-mailboxes :a1)
+  (println "updating mailbox with " mol)
+  (swap! in-mailboxes update-in [:a1] inc)
   [])
 
 (defn out-mail-b1 [mol])
 (defn in-mail-b1 [mol]
-  (swap! in-mailboxes update-mailboxes :b1)
+  (println "updating mailbox with " mol)
+  (swap! in-mailboxes update-in [:b1] inc)
   [])
 
 (defn gen-mail-molecule [x y val]
@@ -356,6 +362,10 @@
    :args []})
 
 
+(defn gen-messages [to n]
+  (case to
+    "b1" (mapv #(gen-mail-molecule % 200 to) (repeatedly n #(rand-int 200)))))
+
 
 (def mail-system-mols (concat
                        (mapv #(gen-membrane-mol 300 %) (range 0 270 40))
@@ -376,13 +386,12 @@
                        (mapv #(gen-membrane-mol 400 %) (range 450 630 40))
 
                        [(gen-server-molecule 400 200 server-b) (gen-inactive-server-molecule 400 300) (gen-server-molecule 400 400 server-b)]
-                       [(gen-out-mailbox-molecule 60 50 out-mail-a1 "a1") (gen-in-mailbox-molecule 60 200 in-mail-a1 "a1")]
-                       [(gen-out-mailbox-molecule 540 50 out-mail-b1 "b1") (gen-in-mailbox-molecule 540 200 in-mail-b1 "b1")]
+                       [(gen-in-mailbox-molecule 60 50 in-mail-a1 "a1")]
+                       [(gen-in-mailbox-molecule 540 50 in-mail-b1 "b1")]
 
                        (mapv #(gen-membrane-mol 0 %) (range 0 630 40))
                        (mapv #(gen-membrane-mol 600 %) (range 0 630 40))
-                       [(assoc (gen-mail-molecule 120 200 "b1")  :dx 1.0 :dy 0.0)]
-                       ))
+                       (gen-messages "b1" 20)))
 
 (defn mail-system []
   (setup-mols mail-system-mols))
