@@ -123,30 +123,25 @@
   (let [react-fn-args-list  (.-length react-fn)]
     (= react-fn-args-list (count arglist))))
 
-(declare gen-fork-molecule)
-(declare gen-eat-philosopher-molecule)
-(declare gen-think-philosopher-molecule)
+(declare gen-mail-molecule)
 
-(defn gen-molecule-by-val [val x]
-  (case val
-    "two-forks and thinking-philosopher" [(gen-fork-molecule (- x 25) 450)
-                                          (gen-fork-molecule (+ x 25) 450)
-                                          (gen-think-philosopher-molecule x 450)]
-    "thinking-philosopher" (gen-think-philosopher-molecule x 450)
-    "eating-philosopher" (gen-eat-philosopher-molecule x 450)))
+(defn gen-molecule-by-val [val x y d move-direction]
+  (case move-direction
+    :right [(gen-mail-molecule (+ x d) y val)]
+    :left [(gen-mail-molecule (- x d) y val)]))
 
 (defn higher-order-eval [fn-mol]
   (let [react-fn (:val fn-mol)
         react-args (:args fn-mol)
         result-vals (apply react-fn react-args)
-        result-mols (flatten (mapv #(gen-molecule-by-val % (:x fn-mol)) result-vals))]
+        result-mols (flatten (mapv (fn [m] (gen-molecule-by-val (:new-val m) (:x fn-mol) (:y fn-mol) (:d fn-mol) (:move-to m)))  result-vals))]
     result-mols))
 
 (defn higher-order-capture [fn-mol val-mol]
   (let [react-fn-args (:args fn-mol)
         react-fn (:val fn-mol)
-        react-allowed-arg-val (:allowed-arg-val fn-mol)]
-    (if (= react-allowed-arg-val (:val val-mol))
+        react-allowed-arg-fn (:allowed-arg-fn fn-mol)]
+    (if (react-allowed-arg-fn (:val val-mol))
         (if (react-fn-ready-to-eval? react-fn react-fn-args)
           [fn-mol val-mol]
           [(assoc fn-mol :args (conj react-fn-args val-mol))
@@ -178,8 +173,7 @@
 
 (defn hatch [mstate]
   (let [result-mols (higher-order-eval mstate)
-        new-y (if (neg? (:dy mstate)) 475 425)
-        clean-mstate (assoc mstate :args [] :y new-y)]
+        clean-mstate (assoc mstate :args [])]
     (swap! world assoc (:id mstate) (-> clean-mstate (move-molecule true)))
     (mapv (fn [m] (swap! world assoc (:id m) (-> m (move-molecule true) (move-molecule false)))) result-mols)
     (mapv (fn [m] (molecule-reaction m)) result-mols)))
@@ -272,8 +266,10 @@
  ["two-forks and thinking-philosopher"])
 
 (defn server-a [mol]
-  (println "val is " mol)
-  mol)
+  (let [to-server (str (first (:val mol)))]
+    (if (= to-server "a")
+      [{:move-to :left :new-val (:val mol)}]
+      [{:move-to :right :new-val (:val mol)}])))
 
 (defn server-b [mol]
   mol)
@@ -306,6 +302,7 @@
    :color "wheat"
    :dx 0.0
    :dy 0.0
+   :allowed-arg-fn (fn [v] false)
    :args []})
 
 
@@ -318,6 +315,7 @@
    :color "lightgreen"
    :dx 0.0
    :dy 0.0
+   :allowed-arg-fn (fn [v] false)
    :args []})
 
 (defn gen-membrane-mol [x y]
@@ -329,6 +327,7 @@
    :color "lightgray"
    :dx 0.0
    :dy 0.0
+   :allowed-arg-fn (fn [v] false)
    :args []})
 
 (defn gen-server-molecule [x y val]
@@ -340,6 +339,7 @@
    :color "lightblue"
    :dx 0.0
    :dy 0.0
+   :allowed-arg-fn (fn [v] true)
    :args []})
 
 (defn gen-inactive-server-molecule [x y]
@@ -351,6 +351,7 @@
    :color "lightgrey"
    :dx 0.0
    :dy 0.0
+   :allowed-arg-fn (fn [v] false)
    :args []})
 
 
@@ -379,7 +380,7 @@
 
                        (mapv #(gen-membrane-mol 0 %) (range 0 630 40))
                        (mapv #(gen-membrane-mol 600 %) (range 0 630 40))
-                       [(gen-mail-molecule 100 100 "b1")]
+                       [(assoc (gen-mail-molecule 120 200 "b1")  :dx 1.0 :dy 0.0)]
                        ))
 
 (defn mail-system []
