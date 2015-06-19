@@ -272,13 +272,19 @@
       [{:move-to :right :new-val (:val mol)}])))
 
 (defn server-b [mol]
-  mol)
+  (let [to-server (str (first (:val mol)))]
+    (if (= to-server "b")
+      [{:move-to :right :new-val (:val mol)}]
+      [{:move-to :left :new-val (:val mol)}])))
 
 (defn inactive [mol]
   mol)
 
 (defn network [mol]
-  mol)
+  (let [to-server (str (first (:val mol)))]
+    (if (= to-server "b")
+      [{:move-to :right :new-val (:val mol)}]
+      [{:move-to :left :new-val (:val mol)}])))
 
 (defn out-mail-a1 [mol])
 (defn in-mail-a1 [mol])
@@ -315,7 +321,7 @@
    :color "lightgreen"
    :dx 0.0
    :dy 0.0
-   :allowed-arg-fn (fn [v] false)
+   :allowed-arg-fn (fn [v] true)
    :args []})
 
 (defn gen-membrane-mol [x y]
