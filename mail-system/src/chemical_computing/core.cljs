@@ -59,9 +59,15 @@
 (defn draw-molecules [state]
   (doall (map draw-molecule state)))
 
+(defn adjust-collide-heading [h]
+  (if (pos? h)
+    (let [nh (+ 0.5 (rand-int 3))]
+      (* -1 nh))
+    (* -1 h)))
+
 (defn move-molecule [{:keys [x y d dx dy] :as molecule} collide?]
-  (let [dx (if collide? (* -1 dx) dx)
-        dy (if collide? (* -1 dy) dy)
+  (let [dx (if collide? (adjust-collide-heading dx) dx)
+        dy (if collide? (adjust-collide-heading dy) dy)
         mx (+ (* dx (if collide? (rand-int d) step)) x)
         my (+ (* dy (if collide? (rand-int d) step)) y)
         newx (if (< (+ (* 2 d) width) mx) (* dx step) mx)
@@ -266,6 +272,7 @@
  ["two-forks and thinking-philosopher"])
 
 (defn server-a [mol]
+  (println "val is " mol)
   mol)
 
 (defn server-b [mol]
@@ -284,6 +291,13 @@
 (defn in-mail-b1 [mol])
 
 (defn gen-mail-molecule [x y val]
+  (assoc (gen-molecule val)
+         :d 10
+         :color "pink"
+         :x x
+         :y y))
+
+(defn gen-mailbox-molecule [x y val]
   {:id (swap! mol-id-counter inc)
    :x x
    :y y
@@ -293,6 +307,7 @@
    :dx 0.0
    :dy 0.0
    :args []})
+
 
 (defn gen-network-molecule [x y]
   {:id (swap! mol-id-counter inc)
@@ -309,7 +324,7 @@
   {:id (swap! mol-id-counter inc)
    :x x
    :y y
-   :d 10
+   :d 20
    :val ""
    :color "lightgray"
    :dx 0.0
@@ -341,21 +356,30 @@
 
 
 (def mail-system-mols (concat
-                       (mapv #(gen-membrane-mol 300 %) (range 10 270 20))
-                       (mapv #(gen-membrane-mol 300 %) (range 350 630 20))
+                       (mapv #(gen-membrane-mol 300 %) (range 0 270 40))
+                       (mapv #(gen-membrane-mol 300 %) (range 350 630 40))
+
                        [(gen-network-molecule 300 300)]
-                       (mapv #(gen-membrane-mol 200 %) (range 10 180 20))
-                       (mapv #(gen-membrane-mol 200 %) (range 220 280 20))
-                       (mapv #(gen-membrane-mol 200 %) (range 320 380 20))
-                       (mapv #(gen-membrane-mol 200 %) (range 420 630 20))
+
+                       (mapv #(gen-membrane-mol 200 %) (range 0 170 40))
+                       (mapv #(gen-membrane-mol 200 %) (range 250 260 40))
+                       (mapv #(gen-membrane-mol 200 %) (range 350 390 40))
+                       (mapv #(gen-membrane-mol 200 %) (range 450 630 40))
+
                        [(gen-server-molecule 200 200 server-a) (gen-inactive-server-molecule 200 300) (gen-server-molecule 200 400 server-a)]
-                       (mapv #(gen-membrane-mol 400 %) (range 10 180 20))
-                       (mapv #(gen-membrane-mol 400 %) (range 220 280 20))
-                       (mapv #(gen-membrane-mol 400 %) (range 320 380 20))
-                       (mapv #(gen-membrane-mol 400 %) (range 420 630 20))
+
+                       (mapv #(gen-membrane-mol 400 %) (range 0 170 40))
+                       (mapv #(gen-membrane-mol 400 %) (range 250 260 40))
+                       (mapv #(gen-membrane-mol 400 %) (range 350 390 40))
+                       (mapv #(gen-membrane-mol 400 %) (range 450 630 40))
+
                        [(gen-server-molecule 400 200 server-b) (gen-inactive-server-molecule 400 300) (gen-server-molecule 400 400 server-b)]
-                       [(gen-mail-molecule 50 50 out-mail-a1) (gen-mail-molecule 50 200 in-mail-a1)]
-                       [(gen-mail-molecule 550 50 out-mail-b1) (gen-mail-molecule 550 200 in-mail-b1)]
+                       [(gen-mailbox-molecule 60 50 out-mail-a1) (gen-mailbox-molecule 60 200 in-mail-a1)]
+                       [(gen-mailbox-molecule 540 50 out-mail-b1) (gen-mailbox-molecule 540 200 in-mail-b1)]
+
+                       (mapv #(gen-membrane-mol 0 %) (range 0 630 40))
+                       (mapv #(gen-membrane-mol 600 %) (range 0 630 40))
+                       [(gen-mail-molecule 100 100 "b1")]
                        ))
 
 (defn mail-system []
