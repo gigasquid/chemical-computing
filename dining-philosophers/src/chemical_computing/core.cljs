@@ -240,13 +240,6 @@
 
 ;; Experiments
 
-(defn prime-reaction [a b]
-  (if (and (> a b)
-           (zero? (mod a b)))
-    [(/ a b) b]
-    [a b]))
-
-
 (defn get-forks [tp]
   (let [diam (* 2 (:d tp))
         rest-molecules (remove (fn [b] (= (:id tp) (:id b))) (vals @world))

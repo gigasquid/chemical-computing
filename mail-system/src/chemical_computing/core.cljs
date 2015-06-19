@@ -240,31 +240,6 @@
 
 ;; Experiments
 
-(defn prime-reaction [a b]
-  (if (and (> a b)
-           (zero? (mod a b)))
-    [(/ a b) b]
-    [a b]))
-
-
-(defn get-forks [tp]
-  (let [diam (* 2 (:d tp))
-        rest-molecules (remove (fn [b] (= (:id tp) (:id b))) (vals @world))
-        collided-with (filter (fn [b] (and (= "f" (:val b))
-                                          (collide? b (:x tp) (:y tp) diam))) rest-molecules)]
-    collided-with))
-
-(defn eat [mol]
-  (let [forks (get-forks mol)]
-    (if (= 2 (count forks))
-      (let [[f1 f2] forks]
-        (swap! world dissoc (:id f1) (:id f2))
-        ["eating-philosopher"])
-      ["thinking-philosopher"])))
-
-(defn think [mol]
- ["two-forks and thinking-philosopher"])
-
 (defn server-a [mol]
   (let [to-server (str (first (:val mol)))]
     (if (= to-server "a")
@@ -277,8 +252,7 @@
       [{:move-to :right :new-val (:val mol)}]
       [{:move-to :left :new-val (:val mol)}])))
 
-(defn inactive [mol]
-  mol)
+(defn inactive [mol])
 
 (defn network [mol]
   (let [to-server (str (first (:val mol)))]
@@ -286,11 +260,20 @@
       [{:move-to :right :new-val (:val mol)}]
       [{:move-to :left :new-val (:val mol)}])))
 
+(def in-mailboxes (atom {}))
+(defn update-mailboxes [mboxes mid]
+  (let [in-count (get mboxes mid 0)]
+    (assoc mboxes mid (inc in-count))))
+
 (defn out-mail-a1 [mol])
-(defn in-mail-a1 [mol])
+(defn in-mail-a1 [mol]
+  (swap! in-mailboxes update-mailboxes :a1)
+  [])
 
 (defn out-mail-b1 [mol])
-(defn in-mail-b1 [mol])
+(defn in-mail-b1 [mol]
+  (swap! in-mailboxes update-mailboxes :b1)
+  [])
 
 (defn gen-mail-molecule [x y val]
   (assoc (gen-molecule val)
@@ -299,7 +282,7 @@
          :x x
          :y y))
 
-(defn gen-mailbox-molecule [x y val]
+(defn gen-in-mailbox-molecule [x y val mailbox-address]
   {:id (swap! mol-id-counter inc)
    :x x
    :y y
@@ -308,7 +291,19 @@
    :color "wheat"
    :dx 0.0
    :dy 0.0
-   :allowed-arg-fn (fn [v] false)
+   :allowed-arg-fn (fn [v] (= v mailbox-address))
+   :args []})
+
+(defn gen-out-mailbox-molecule [x y val mailbox-address]
+  {:id (swap! mol-id-counter inc)
+   :x x
+   :y y
+   :d 40
+   :val val
+   :color "wheat"
+   :dx 0.0
+   :dy 0.0
+   :allowed-arg-fn (fn [v] (= v false))
    :args []})
 
 
@@ -381,8 +376,8 @@
                        (mapv #(gen-membrane-mol 400 %) (range 450 630 40))
 
                        [(gen-server-molecule 400 200 server-b) (gen-inactive-server-molecule 400 300) (gen-server-molecule 400 400 server-b)]
-                       [(gen-mailbox-molecule 60 50 out-mail-a1) (gen-mailbox-molecule 60 200 in-mail-a1)]
-                       [(gen-mailbox-molecule 540 50 out-mail-b1) (gen-mailbox-molecule 540 200 in-mail-b1)]
+                       [(gen-out-mailbox-molecule 60 50 out-mail-a1 "a1") (gen-in-mailbox-molecule 60 200 in-mail-a1 "a1")]
+                       [(gen-out-mailbox-molecule 540 50 out-mail-b1 "b1") (gen-in-mailbox-molecule 540 200 in-mail-b1 "b1")]
 
                        (mapv #(gen-membrane-mol 0 %) (range 0 630 40))
                        (mapv #(gen-membrane-mol 600 %) (range 0 630 40))
