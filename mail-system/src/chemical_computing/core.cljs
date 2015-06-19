@@ -265,77 +265,104 @@
 (defn think [mol]
  ["two-forks and thinking-philosopher"])
 
+(defn server-a [mol]
+  mol)
 
-(defn gen-fork-molecule [x y]
+(defn server-b [mol]
+  mol)
+
+(defn inactive [mol]
+  mol)
+
+(defn network [mol]
+  mol)
+
+(defn out-mail-a1 [mol])
+(defn in-mail-a1 [mol])
+
+(defn out-mail-b1 [mol])
+(defn in-mail-b1 [mol])
+
+(defn gen-mail-molecule [x y val]
   {:id (swap! mol-id-counter inc)
    :x x
    :y y
-   :d 10
-   :val "f"
-   :color "pink"
+   :d 40
+   :val val
+   :color "wheat"
    :dx 0.0
    :dy 0.0
    :args []})
 
-(defn gen-think-philosopher-molecule [x y]
+(defn gen-network-molecule [x y]
   {:id (swap! mol-id-counter inc)
    :x x
    :y y
-   :d 20
-   :val "TP"
+   :d 40
+   :val network
+   :color "lightgreen"
+   :dx 0.0
+   :dy 0.0
+   :args []})
+
+(defn gen-membrane-mol [x y]
+  {:id (swap! mol-id-counter inc)
+   :x x
+   :y y
+   :d 10
+   :val ""
+   :color "lightgray"
+   :dx 0.0
+   :dy 0.0
+   :args []})
+
+(defn gen-server-molecule [x y val]
+  {:id (swap! mol-id-counter inc)
+   :x x
+   :y y
+   :d 35
+   :val val
    :color "lightblue"
    :dx 0.0
    :dy 0.0
    :args []})
 
-(defn gen-eat-philosopher-molecule [x y]
+(defn gen-inactive-server-molecule [x y]
   {:id (swap! mol-id-counter inc)
    :x x
    :y y
-   :d 20
-   :val "EP"
-   :color "yellow"
+   :d 35
+   :val "inactive"
+   :color "lightgrey"
    :dx 0.0
    :dy 0.0
    :args []})
 
-(defn gen-eat-molecule [x y]
-  {:id (swap! mol-id-counter inc)
-   :x x
-   :y y
-   :d 20
-   :val eat
-   :color "lightgreen"
-   :dx 0.0
-   :dy (+ (rand) 1)
-   :args []
-   :allowed-arg-val "TP"})
-
-(defn gen-think-molecule [x y]
-  {:id (swap! mol-id-counter inc)
-   :x x
-   :y y
-   :d 20
-   :val think
-   :color "orange"
-   :dx 0.0
-   :dy (- (rand) -1)
-   :args []
-   :allowed-arg-val "EP"})
 
 
-(def dining-mols (concat
-                          (mapv gen-fork-molecule (range 25 500 50) (repeat 450))
-                          (mapv gen-think-philosopher-molecule (range 50 500 50) (repeat 450))
-                          (mapv gen-eat-molecule  (range 50 500 50) (repeat 300))
-                          (mapv gen-think-molecule (range 50 500 50) (repeat 100))
-                          ))
+(def mail-system-mols (concat
+                       (mapv #(gen-membrane-mol 300 %) (range 10 270 20))
+                       (mapv #(gen-membrane-mol 300 %) (range 350 630 20))
+                       [(gen-network-molecule 300 300)]
+                       (mapv #(gen-membrane-mol 200 %) (range 10 180 20))
+                       (mapv #(gen-membrane-mol 200 %) (range 220 280 20))
+                       (mapv #(gen-membrane-mol 200 %) (range 320 380 20))
+                       (mapv #(gen-membrane-mol 200 %) (range 420 630 20))
+                       [(gen-server-molecule 200 200 server-a) (gen-inactive-server-molecule 200 300) (gen-server-molecule 200 400 server-a)]
+                       (mapv #(gen-membrane-mol 400 %) (range 10 180 20))
+                       (mapv #(gen-membrane-mol 400 %) (range 220 280 20))
+                       (mapv #(gen-membrane-mol 400 %) (range 320 380 20))
+                       (mapv #(gen-membrane-mol 400 %) (range 420 630 20))
+                       [(gen-server-molecule 400 200 server-b) (gen-inactive-server-molecule 400 300) (gen-server-molecule 400 400 server-b)]
+                       [(gen-mail-molecule 50 50 out-mail-a1) (gen-mail-molecule 50 200 in-mail-a1)]
+                       [(gen-mail-molecule 550 50 out-mail-b1) (gen-mail-molecule 550 200 in-mail-b1)]
+                       ))
 
-(defn dining-philosophers []
-  (setup-mols dining-mols))
+(defn mail-system []
+  (setup-mols mail-system-mols))
 
 (clear)
 (start)
 (run)
 
-(dining-philosophers)
+(mail-system)
