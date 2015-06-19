@@ -364,7 +364,8 @@
 
 (defn gen-messages [to n]
   (case to
-    "b1" (mapv #(gen-mail-molecule % 200 to) (repeatedly n #(rand-int 200)))))
+    "b1" (mapv #(gen-mail-molecule % 200 to) (repeatedly n #(rand-int 200)))
+    "a1" (mapv #(gen-mail-molecule % 200 to) (repeatedly n #(- 600 (rand-int 200))))))
 
 
 (def mail-system-mols (concat
@@ -391,7 +392,8 @@
 
                        (mapv #(gen-membrane-mol 0 %) (range 0 630 40))
                        (mapv #(gen-membrane-mol 600 %) (range 0 630 40))
-                       (gen-messages "b1" 20)))
+                       (gen-messages "b1" 20)
+                       (gen-messages "a1" 20)))
 
 (defn mail-system []
   (setup-mols mail-system-mols))
