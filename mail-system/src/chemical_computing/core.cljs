@@ -201,8 +201,11 @@
 
 (defn hatch [mstate]
   (let [result-mols (higher-order-eval mstate)
-        clean-mstate (assoc mstate :args [])]
-    (swap! world assoc (:id mstate) (-> clean-mstate (move-molecule true)))
+        clean-mstate (assoc mstate :args [])
+        one-shot? (:one-shot? mstate)]
+    (if one-shot?
+      (swap! world dissoc (:id mstate))
+      (swap! world assoc (:id mstate) (-> clean-mstate (move-molecule true))))
     (mapv (fn [m] (swap! world assoc (:id m) (-> m (move-molecule true) (move-molecule false)))) result-mols)
     (mapv (fn [m] (molecule-reaction m)) result-mols)))
 
@@ -310,7 +313,6 @@
   [])
 
 (defn crash [mol]
-  (println "The molecule is " mol)
   [{:new-val "inactive-server" :x (:x mol) :y (:y mol)} ])
 
 (defn gen-mail-molecule [x y val]
@@ -328,7 +330,8 @@
          :y y
          :val crash
          :allowed-arg-fn (fn [v] (or (= v server-a) (= v server-b)))
-         :args []))
+         :args []
+         :one-shot? true))
 
 (defn gen-in-mailbox-molecule [x y val mailbox-address]
   {:id (swap! mol-id-counter inc)
@@ -375,7 +378,7 @@
    :color "lightblue"
    :dx 0.0
    :dy 0.0
-   :allowed-arg-fn (fn [v] (not (fn? val)))
+   :allowed-arg-fn (fn [v] (string? v))
    :args []})
 
 (defn gen-inactive-server-molecule [x y]
@@ -429,7 +432,7 @@
 
                        (mapv #(gen-membrane-mol 0 %) (range 0 630 40))
                        (mapv #(gen-membrane-mol 600 %) (range 0 630 40))
-                       ;(gen-messages "b1" 10)
+                       (gen-messages "b1" 10)
                        ;(gen-messages "b2" 10)
                        ;(gen-messages "a1" 10)
                        ;(gen-messages "a2" 10)
