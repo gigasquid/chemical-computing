@@ -126,17 +126,28 @@
     (= react-fn-args-list (count arglist))))
 
 (declare gen-mail-molecule)
+(declare gen-inactive-server-molecule)
 
 (defn gen-molecule-by-val [val x y d move-direction]
-  (case move-direction
-    :right [(gen-mail-molecule (+ x d) y val)]
-    :left [(gen-mail-molecule (- x d) y val)]))
+  (cond
+    (= val "inactive-server")
+    (gen-inactive-server-molecule x y)
+
+    :else
+    (case move-direction
+      :right [(gen-mail-molecule (+ x d) y val)]
+      :left [(gen-mail-molecule (- x d) y val)])))
 
 (defn higher-order-eval [fn-mol]
   (let [react-fn (:val fn-mol)
         react-args (:args fn-mol)
         result-vals (apply react-fn react-args)
-        result-mols (flatten (mapv (fn [m] (gen-molecule-by-val (:new-val m) (:x fn-mol) (:y fn-mol) (:d fn-mol) (:move-to m)))  result-vals))]
+        result-mols (flatten (mapv (fn [m] (gen-molecule-by-val
+                                           (:new-val m)
+                                           (or (:x m) (:x fn-mol))
+                                           (or (:y m) (:y fn-mol))
+                                           (or (:d m) (:d fn-mol))
+                                           (:move-to m)))  result-vals))]
     result-mols))
 
 (defn higher-order-capture [fn-mol val-mol]
@@ -150,13 +161,28 @@
            (assoc val-mol :val :destroy)])
         [fn-mol val-mol])))
 
+(defn higher-order-compare [mol1 mol2]
+  (let [allow-arg-fn-1 (:allowed-arg-fn mol1)
+        allow-arg-fn-2 (:allowed-arg-fn mol2)
+        mol2-as-arg? (allow-arg-fn-1 (:val mol2))
+        mol1-as-arg? (allow-arg-fn-2 (:val mol1))]
+    (cond
+      mol2-as-arg?
+      (higher-order-capture mol1 mol2)
+
+      mol1-as-arg?
+      (higher-order-capture mol2 mol1)
+
+      :else
+      [mol1 mol2])))
+
 
 (defn higher-order-reaction [mol1 mol2]
   (let [v1 (:val mol1)
         v2 (:val mol2)]
     (cond
       (and (fn? v1) (fn? v2))
-      [mol1 mol2]
+      (higher-order-compare mol1 mol2)
 
       (fn? v1)
       (higher-order-capture mol1 mol2)
@@ -261,15 +287,13 @@
       [{:move-to :right :new-val (:val mol)}]
       [{:move-to :left :new-val (:val mol)}])))
 
-(defn inactive [mol])
-
 (defn network [mol]
   (let [to-server (str (first (:val mol)))]
     (if (= to-server "b")
       [{:move-to :right :new-val (:val mol)}]
       [{:move-to :left :new-val (:val mol)}])))
 
-(defn in-mail-a1[mol key]
+(defn in-mail-a1[mol]
   (swap! in-mailboxes update-in [:a1] inc)
   [])
 
@@ -285,12 +309,26 @@
   (swap! in-mailboxes update-in [:b2] inc)
   [])
 
+(defn crash [mol]
+  (println "The molecule is " mol)
+  [{:new-val "inactive-server" :x (:x mol) :y (:y mol)} ])
+
 (defn gen-mail-molecule [x y val]
   (assoc (gen-molecule val)
          :d 10
          :color "pink"
          :x x
          :y y))
+
+(defn gen-server-crash-molecule [x y]
+  (assoc (gen-molecule val)
+         :d 20
+         :color "red"
+         :x x
+         :y y
+         :val crash
+         :allowed-arg-fn (fn [v] (or (= v server-a) (= v server-b)))
+         :args []))
 
 (defn gen-in-mailbox-molecule [x y val mailbox-address]
   {:id (swap! mol-id-counter inc)
@@ -337,7 +375,7 @@
    :color "lightblue"
    :dx 0.0
    :dy 0.0
-   :allowed-arg-fn (fn [v] true)
+   :allowed-arg-fn (fn [v] (not (fn? val)))
    :args []})
 
 (defn gen-inactive-server-molecule [x y]
@@ -360,6 +398,12 @@
     "a1" (mapv #(gen-mail-molecule % 200 to) (repeatedly n #(- 600 (rand-int 200))))
     "a2" (mapv #(gen-mail-molecule % 400 to) (repeatedly n #(- 600 (rand-int 200))))))
 
+(defn gen-server-crash [to n]
+  (case to
+    "b" (mapv #(gen-server-crash-molecule % 300) (repeatedly n #(rand-int 200)))
+    "a" (mapv #(gen-server-crash-molecule % 300) (repeatedly n #(- 600 (rand-int 200))))
+))
+
 
 (def mail-system-mols (concat
                        (mapv #(gen-membrane-mol 300 %) (range 0 270 40))
@@ -372,23 +416,25 @@
                        (mapv #(gen-membrane-mol 200 %) (range 350 390 40))
                        (mapv #(gen-membrane-mol 200 %) (range 450 630 40))
 
-                       [(gen-server-molecule 200 200 server-a) (gen-inactive-server-molecule 200 300) (gen-server-molecule 200 400 server-a)]
+                       [(gen-server-molecule 200 200 server-a) (gen-server-molecule 200 300 server-a) (gen-server-molecule 200 400 server-a)]
 
                        (mapv #(gen-membrane-mol 400 %) (range 0 170 40))
                        (mapv #(gen-membrane-mol 400 %) (range 250 260 40))
                        (mapv #(gen-membrane-mol 400 %) (range 350 390 40))
                        (mapv #(gen-membrane-mol 400 %) (range 450 630 40))
 
-                       [(gen-server-molecule 400 200 server-b) (gen-inactive-server-molecule 400 300) (gen-server-molecule 400 400 server-b)]
+                       [(gen-server-molecule 400 200 server-b) (gen-server-molecule 400 300 server-b) (gen-server-molecule 400 400 server-b)]
                        [(gen-in-mailbox-molecule 60 50 in-mail-a1 "a1") (gen-in-mailbox-molecule 540 50 in-mail-b1 "b1")]
                        [(gen-in-mailbox-molecule 60 550 in-mail-a2 "a2") (gen-in-mailbox-molecule 540 550 in-mail-b2 "b2")]
 
                        (mapv #(gen-membrane-mol 0 %) (range 0 630 40))
                        (mapv #(gen-membrane-mol 600 %) (range 0 630 40))
-                       (gen-messages "b1" 10)
-                       (gen-messages "b2" 10)
-                       (gen-messages "a1" 10)
-                       (gen-messages "a2" 10)
+                       ;(gen-messages "b1" 10)
+                       ;(gen-messages "b2" 10)
+                       ;(gen-messages "a1" 10)
+                       ;(gen-messages "a2" 10)
+                       (gen-server-crash "a" 1)
+                       (gen-server-crash "b" 1)
                        ))
 
 (defn mail-system []
