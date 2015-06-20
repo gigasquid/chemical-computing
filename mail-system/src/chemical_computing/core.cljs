@@ -49,7 +49,6 @@
     .closePath
     .fill ))
 
-
 (defn draw-molecule [{:keys [x y d val color args]}]
   (when val
     (let [display-val (if (fn? val) (.-name val) val)]
@@ -127,11 +126,16 @@
 
 (declare gen-mail-molecule)
 (declare gen-inactive-server-molecule)
+(declare gen-server-molecule)
+(declare server-a server-b)
 
 (defn gen-molecule-by-val [val x y d move-direction]
   (cond
     (= val "inactive-server")
     (gen-inactive-server-molecule x y)
+
+    (or (= val server-b) (= val server-a))
+    (gen-server-molecule x y val)
 
     :else
     (case move-direction
@@ -315,6 +319,10 @@
 (defn crash [mol]
   [{:new-val "inactive-server" :x (:x mol) :y (:y mol)} ])
 
+(defn fixes [mol]
+  (let [server (if (< (:x mol) 300) server-a server-b)]
+   [{:new-val server :x (:x mol) :y (:y mol)} ]))
+
 (defn gen-mail-molecule [x y val]
   (assoc (gen-molecule val)
          :d 10
@@ -324,7 +332,7 @@
 
 (defn gen-server-crash-molecule [x y]
   (assoc (gen-molecule val)
-         :d 20
+         :d 18
          :color "red"
          :x x
          :y y
@@ -332,6 +340,16 @@
          :allowed-arg-fn (fn [v] (or (= v server-a) (= v server-b)))
          :args []
          :one-shot? true))
+
+(defn gen-server-fixes-molecule [x y]
+  (assoc (gen-molecule val)
+         :d 18
+         :color "green"
+         :x x
+         :y y
+         :val fixes
+         :allowed-arg-fn (fn [v] (= v "inactive"))
+         :args []))
 
 (defn gen-in-mailbox-molecule [x y val mailbox-address]
   {:id (swap! mol-id-counter inc)
@@ -389,9 +407,7 @@
    :val "inactive"
    :color "lightgrey"
    :dx 0.0
-   :dy 0.0
-   :allowed-arg-fn (fn [v] false)
-   :args []})
+   :dy 0.0})
 
 
 (defn gen-messages [to n]
@@ -405,6 +421,12 @@
   (case to
     "b" (mapv #(gen-server-crash-molecule % 300) (repeatedly n #(rand-int 200)))
     "a" (mapv #(gen-server-crash-molecule % 300) (repeatedly n #(- 600 (rand-int 200))))
+))
+
+(defn gen-server-fixes [to n]
+  (case to
+    "b" (mapv #(gen-server-fixes-molecule % 500) (repeatedly n #(rand-int 200)))
+    "a" (mapv #(gen-server-fixes-molecule % 500) (repeatedly n #(- 600 (rand-int 200))))
 ))
 
 
@@ -433,11 +455,15 @@
                        (mapv #(gen-membrane-mol 0 %) (range 0 630 40))
                        (mapv #(gen-membrane-mol 600 %) (range 0 630 40))
                        (gen-messages "b1" 10)
-                       ;(gen-messages "b2" 10)
-                       ;(gen-messages "a1" 10)
-                       ;(gen-messages "a2" 10)
-                       (gen-server-crash "a" 1)
-                       (gen-server-crash "b" 1)
+                       (gen-messages "b2" 10)
+                       (gen-messages "a1" 10)
+                       (gen-messages "a2" 10)
+                       (gen-server-crash "a" 3)
+                       (gen-server-crash "b" 3)
+
+                       (gen-server-fixes "a" 1)
+                       (gen-server-fixes "b" 1)
+
                        ))
 
 (defn mail-system []
