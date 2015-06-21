@@ -425,8 +425,8 @@
 
 (defn gen-server-fixes [to n]
   (case to
-    "b" (mapv #(gen-server-fixes-molecule % 500) (repeatedly n #(rand-int 200)))
-    "a" (mapv #(gen-server-fixes-molecule % 500) (repeatedly n #(- 600 (rand-int 200))))
+    "b" (mapv #(gen-server-fixes-molecule % 350) (repeatedly n #(rand-int 200)))
+    "a" (mapv #(gen-server-fixes-molecule % 350) (repeatedly n #(- 600 (rand-int 200))))
 ))
 
 
@@ -452,14 +452,14 @@
                        [(gen-in-mailbox-molecule 60 50 in-mail-a1 "a1") (gen-in-mailbox-molecule 540 50 in-mail-b1 "b1")]
                        [(gen-in-mailbox-molecule 60 550 in-mail-a2 "a2") (gen-in-mailbox-molecule 540 550 in-mail-b2 "b2")]
 
-                       (mapv #(gen-membrane-mol 0 %) (range 0 630 40))
-                       (mapv #(gen-membrane-mol 600 %) (range 0 630 40))
-                       (gen-messages "b1" 10)
-                       (gen-messages "b2" 10)
-                       (gen-messages "a1" 10)
-                       (gen-messages "a2" 10)
-                       (gen-server-crash "a" 3)
-                       (gen-server-crash "b" 3)
+                       (mapv #(gen-membrane-mol 0 %) (range 0 650 40))
+                       (mapv #(gen-membrane-mol 600 %) (range 0 650 40))
+                       (gen-messages "b1" 5)
+                       (gen-messages "b2" 5)
+                       (gen-messages "a1" 5)
+                       (gen-messages "a2" 5)
+                       (gen-server-crash "a" 2)
+                       (gen-server-crash "b" 2)
 
                        (gen-server-fixes "a" 1)
                        (gen-server-fixes "b" 1)
