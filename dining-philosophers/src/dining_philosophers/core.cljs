@@ -1,12 +1,10 @@
-(ns ^:figwheel-always chemical-computing.core
+(ns ^:figwheel-always dining-philosophers.core
     (:require
      [cljs.core.async :refer [timeout chan  >! <!]])
     (:require-macros
      [cljs.core.async.macros :refer [go go-loop]]))
 
 (enable-console-print!)
-
-;; define your app data so that it doesn't get over-written on reload
 
 (def canvas (-> js/document (.getElementById "canvas")))
 (def context (.getContext canvas "2d"))
@@ -20,6 +18,10 @@
 (def running (atom false))
 (def mol-id-counter (atom 0))
 
+(declare gen-fork-molecule)
+(declare gen-eat-philosopher-molecule)
+(declare gen-think-philosopher-molecule)
+(declare molecule-reaction)
 
 (defn setColor [context color]
   (set! (.-fillStyle context) color)
@@ -47,7 +49,6 @@
     .closePath
     .fill ))
 
-
 (defn draw-molecule [{:keys [x y d val color args]}]
   (when val
     (let [display-val (if (fn? val) (.-name val) val)]
@@ -73,9 +74,6 @@
                     :dx dx
                     :dy dy})))
 
-(defn pick-color []
-  (first (shuffle colors)))
-
 (defn rand-dx-dy []
   (let [multiplier (if (> 0.5 (rand)) -1 1)
         speed (rand)]
@@ -85,7 +83,6 @@
   (let [dx (Math/abs (- (:x molecule) x))
         dy (Math/abs (- (:y molecule) y))]
     (and (> molecule-d dx) (> molecule-d dy))))
-
 
 (defn max-reaction [molecule-a molecule-b]
   (let [a (:val molecule-a)
@@ -117,10 +114,6 @@
   (let [react-fn-args-list  (.-length react-fn)]
     (= react-fn-args-list (count arglist))))
 
-(declare gen-fork-molecule)
-(declare gen-eat-philosopher-molecule)
-(declare gen-think-philosopher-molecule)
-
 (defn gen-molecule-by-val [val x]
   (case val
     "two-forks and thinking-philosopher" [(gen-fork-molecule (- x 25) 450)
@@ -147,7 +140,6 @@
            (assoc val-mol :val :destroy)])
         [fn-mol val-mol])))
 
-
 (defn higher-order-reaction [mol1 mol2]
   (let [v1 (:val mol1)
         v2 (:val mol2)]
@@ -168,8 +160,6 @@
   (when (fn? (:val mstate))
     (react-fn-ready-to-eval? (:val mstate) (:args mstate))))
 
-(declare molecule-reaction)
-
 (defn hatch [mstate]
   (let [result-mols (higher-order-eval mstate)
         new-y (if (neg? (:dy mstate)) 475 425)
@@ -177,7 +167,6 @@
     (swap! world assoc (:id mstate) (-> clean-mstate (move-molecule true)))
     (mapv (fn [m] (swap! world assoc (:id m) (-> m (move-molecule true) (move-molecule false)))) result-mols)
     (mapv (fn [m] (molecule-reaction m)) result-mols)))
-
 
 (defn collision-reaction [mstate collision-mol]
   (let [new-mols (higher-order-reaction mstate collision-mol)
@@ -209,7 +198,6 @@
   (doseq [mol init-mols]
     (molecule-reaction mol)))
 
-
 (defn tick []
   (clear)
   (if @running
@@ -234,10 +222,6 @@
 (defn stop []
   (reset! running false))
 
-(defn restart []
-  (clear)
-  (start))
-
 ;; Experiments
 
 (defn get-forks [tp]
@@ -257,7 +241,6 @@
 
 (defn think [mol]
  ["two-forks and thinking-philosopher"])
-
 
 (defn gen-fork-molecule [x y]
   {:id (swap! mol-id-counter inc)

@@ -1,6 +1,6 @@
-(ns chemical-computing.dev
+(ns dining-philosophers.dev
     (:require
-     [chemical-computing.core]
+     [dining-philosophers.core]
      [figwheel.client :as fw]))
 
 (fw/start {
