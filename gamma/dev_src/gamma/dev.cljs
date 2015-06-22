@@ -1,6 +1,6 @@
-(ns chemical-computing.dev
+(ns gamma.dev
     (:require
-     [chemical-computing.core]
+     [gamma.core]
      [figwheel.client :as fw]))
 
 (fw/start {

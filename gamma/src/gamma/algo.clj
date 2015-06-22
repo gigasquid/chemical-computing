@@ -1,4 +1,4 @@
-(ns chemical-computing.algo
+(ns gamma.algo
   (:require [clojure.test :refer :all]))
 
 (def prime-to-100

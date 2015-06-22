@@ -1,4 +1,4 @@
-(ns ^:figwheel-always chemical-computing.core
+(ns ^:figwheel-always gamma.core
     (:require
      [cljs.core.async :refer [timeout chan alts! >! <!]]
      [enfocus.core :as ef]
@@ -231,4 +231,3 @@
                                      (<! (timeout 1000))
                                      (restart)
                                      (max-to-99))))
-
