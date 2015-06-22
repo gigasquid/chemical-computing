@@ -469,8 +469,29 @@
 (defn mail-system []
   (setup-mols mail-system-mols))
 
+(defn add-mols-to-system [mols]
+  (swap! world merge (zipmap (map :id mols) mols))
+  (doseq [mol mols]
+    (molecule-reaction mol)))
+
+(defn more-mail []
+  (let [mols (concat (gen-messages "b1" 2)
+                     (gen-messages "b2" 2)
+                      (gen-messages "a1" 2)
+                      (gen-messages "a2" 2))]
+    (add-mols-to-system mols)))
+
+(defn more-server-crashes []
+  (let [mols (concat (gen-server-crash "a" 1)
+                     (gen-server-crash "b" 1))]
+    (add-mols-to-system mols)))
+
 (clear)
 (start)
 (run)
 
 (mail-system)
+
+(ef/at "#more-mail" (ev/listen :click #(add-mols-to-system (more-mail)))
+       "#more-server-crashes" (ev/listen :click
+                                         #(add-mols-to-system (more-server-crashes))))
