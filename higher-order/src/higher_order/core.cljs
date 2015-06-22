@@ -1,4 +1,4 @@
-(ns ^:figwheel-always chemical-computing.core
+(ns ^:figwheel-always higher-order.core
     (:require
      [cljs.core.async :refer [timeout chan alts! >! <!]]
      [enfocus.core :as ef]
@@ -23,6 +23,7 @@
 (def running (atom false))
 (def mol-id-counter (atom 0))
 
+(declare molecule-reaction)
 
 (defn setColor [context color]
   (set! (.-fillStyle context) color)
@@ -90,14 +91,6 @@
   (let [dx (Math/abs (- (:x molecule) x))
         dy (Math/abs (- (:y molecule) y))]
     (and (> molecule-d dx) (> molecule-d dy))))
-
-
-(defn max-reaction [molecule-a molecule-b]
-  (let [a (:val molecule-a)
-        b (:val molecule-b)]
-    (if (> b a)
-      (assoc molecule-a :val b)
-      molecule-a)))
 
 (defn gen-molecule [val]
   {:id (swap! mol-id-counter inc)
@@ -167,15 +160,12 @@
   (when (fn? (:val mstate))
     (react-fn-ready-to-eval? (:val mstate) (:args mstate))))
 
-(declare molecule-reaction)
-
 (defn hatch [mstate]
   (let [result-mols (higher-order-eval mstate)
         clean-mstate (assoc mstate :args [])]
     (swap! world assoc (:id mstate) (-> clean-mstate (move-molecule true) (move-molecule false)))
     (mapv (fn [m] (swap! world assoc (:id m) (-> m (move-molecule true) (move-molecule false)))) result-mols)
     (mapv (fn [m] (molecule-reaction m)) result-mols)))
-
 
 (defn collision-reaction [mstate collision-mol]
   (let [new-mols (higher-order-reaction mstate collision-mol)

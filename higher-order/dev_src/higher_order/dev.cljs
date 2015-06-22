@@ -1,6 +1,6 @@
-(ns chemical-computing.dev
+(ns higher-order.dev
     (:require
-     [chemical-computing.core]
+     [higher-order.core]
      [figwheel.client :as fw]))
 
 (fw/start {
