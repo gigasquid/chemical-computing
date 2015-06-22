@@ -20,18 +20,18 @@
   :cljsbuild {
     :builds [{:id "dev"
               :source-paths ["src" "dev_src"]
-              :compiler {:output-to "resources/public/js/compiled/chemical_computing.js"
+              :compiler {:output-to "resources/public/js/compiled/mail_system.js"
                          :output-dir "resources/public/js/compiled/out"
                          :optimizations :none
-                         :main chemical-computing.dev
+                         :main mail-system.dev
                          :asset-path "js/compiled/out"
                          :source-map true
                          :source-map-timestamp true
                          :cache-analysis true }}
              {:id "min"
               :source-paths ["src"]
-              :compiler {:output-to "resources/public/js/compiled/chemical_computing.js"
-                         :main chemical-computing.core
+              :compiler {:output-to "resources/public/js/compiled/mail_sytem.js"
+                         :main mail-system.core
                          :optimizations :advanced
                          :pretty-print false}}]}
 

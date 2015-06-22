@@ -1,6 +1,6 @@
-(ns chemical-computing.dev
+(ns mail-system.dev
     (:require
-     [chemical-computing.core]
+     [mail-system.core]
      [figwheel.client :as fw]))
 
 (fw/start {
