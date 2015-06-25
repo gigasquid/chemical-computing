@@ -234,7 +234,7 @@ You need to cd into the directory and the run `lein figwheel` to get started.  A
 
 Here is a link of all the experiment demos
 
--[Gamma Demo](http://gigasquidsoftware.com/chemical-computing/gamma/resources/public/index.html)
--[Higher Order Demo](http://gigasquidsoftware.com/chemical-computing/higher-order/resources/public/index.html)
--[Dining Philosopher Demo](http://gigasquidsoftware.com/chemical-computing/dining-philosophers/resources/public/index.html)
--[Self Organizing and Self Healing Mail System Demo](http://gigasquidsoftware.com/chemical-computing/mail-system/resources/public/index.html)
+- [Gamma Demo](http://gigasquidsoftware.com/chemical-computing/gamma/resources/public/index.html)
+- [Higher Order Demo](http://gigasquidsoftware.com/chemical-computing/higher-order/resources/public/index.html)
+- [Dining Philosopher Demo](http://gigasquidsoftware.com/chemical-computing/dining-philosophers/resources/public/index.html)
+- [Self Organizing and Self Healing Mail System Demo](http://gigasquidsoftware.com/chemical-computing/mail-system/resources/public/index.html)
