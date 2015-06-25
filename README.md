@@ -228,3 +228,13 @@ The examples are all in ClojureScript and using Figwheel. The directories are or
 ```
 
 You need to cd into the directory and the run `lein figwheel` to get started.  A port will open up for you so that you can open a web page at `localhost:3449`.
+
+
+## Experiment Demos Links
+
+Here is a link of all the experiment demos
+
+-[Gamma Demo](http://gigasquidsoftware.com/chemical-computing/gamma/resources/public/index.html)
+-[Higher Order Demo](http://gigasquidsoftware.com/chemical-computing/higher-order/resources/public/index.html)
+-[Dining Philosopher Demo](http://gigasquidsoftware.com/chemical-computing/dining-philosophers/resources/public/index.html)
+-[Self Organizing and Self Healing Mail System Demo](http://gigasquidsoftware.com/chemical-computing/mail-system/resources/public/index.html)
