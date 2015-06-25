@@ -22,7 +22,7 @@ The Chemical Programming we are exploring is _abstract_.  We are not actually go
 
 The heart of the Chemical Programming paradigm is the _reaction_.  It is what happens when two or more _molecules_ react with each other.  Perhaps the simplest way to look at this is using an example.  In this case, let us look at calculating prime numbers.
 
-If we want to compute primes in a naive, traditional way in Clojure, we could make a _is_prime?_ function:
+If we want to compute primes in a naive, traditional way in Clojure, we could make a _is-prime?_ function:
 
 ```clojure
 (defn is-prime? [n]
@@ -46,7 +46,7 @@ Given a number, it make a list of all the possible factors from 2 up to that num
 ;=> (2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97)
 ```
 
-Now, let's look at how we would approach the same problem using Chemical Programming.  The first big difference is that we are going to consider all the integers as molecules.  When two of these integer-molecules meet, they react according to a _prime-reaction_.  The two molecules react according
+Now, let's look at how we would approach the same problem using Chemical Programming.  The first big difference is that we are going to consider all the integers as molecules.  When two of these integer-molecules meet, they react according to a _prime-reaction_.  The two molecules react accordingly.
 
 ![prime reaction](./images/prime-reaction.png)
 
@@ -112,7 +112,7 @@ The prime program that we were just exploring is an example of a _Gamma Program_
 
 Another example of a Gamma program is simple calculation for a _max_.
 
-![prime reaction](./images/prime-reaction.png)
+![prime reaction](./images/max-reaction.png)
 
 So far we have been showing examples in Clojure code with no visualization.  But with the help of ClojureScript and core.async.  We can actually make a simulation of a gamma program.  In this simulation, the integers-molecules are shown as being circles floating around in a solution.  They react with each other when they collide.  Each molecule is running its own movement and reaction in its own core.async go-loop.  State is coordinated through a global atom map that keeps track of the position and value of each molecule.  The result is continuously updated on the bottom by sampling the solution with a distinct/sort.
 
@@ -127,7 +127,7 @@ One of the things to note is that we no longer care about any order of operation
 
 So far we have been encoding the _prime-reaction_ and _max_reaction_ directly in our program.  But, we it we took these reaction rules and made them a molecule?  This is the central idea of Higher Order Chemical Programming.
 
-There is a molecule that has as its value a _prime_reaction_ function. The reaction function takes two arguments
+There is a molecule that has as its value a _prime-reaction_ function. The reaction function takes two arguments
 
 ```clojure
 (defn prime-reaction [a b]
@@ -137,9 +137,9 @@ There is a molecule that has as its value a _prime_reaction_ function. The react
     [a b]))
 ```
 
-If the function molecule encounters a value molecule, it will capture it.  If it has captured enough value molecules to satisfy the arity of the reaction fucntion, (in the prime function it is two), then it will _hatch_.  The process of hatching will apply the function to the values and create new molecules out of the result. The function molecules are considered _n-shot_ in our experiments.  This means that after the function molecule _hatches_, it will have the result being the new value molecules as well as the original function molecule with no captured arguments.  In this way, it can continue to react in solution.
+If the function molecule encounters a value molecule, it will capture it.  If it has captured enough value molecules to satisfy the arity of the reaction function, (in the prime function it is two), then it will _hatch_.  The process of hatching will apply the function to the values and create new molecules out of the result. The function molecules are considered _n-shot_ in our experiments.  This means that after the function molecule _hatches_, it will have the result being the new value molecules as well as the original function molecule with no captured arguments.  In this way, it can continue to react in solution.
 
-There are interesting ways that these reaction function molecules can control the growth of the solution. The previous _prime-reaction function took in two molecules and returned two-molecules.  The number of molecules in the solution will continue to be the same.  We could change the reaction function to be reducing by changing the return molecule to be only one.
+There are interesting ways that these reaction function molecules can control the growth of the solution. The previous _prime-reaction_ function took in two molecules and returned two-molecules.  The number of molecules in the solution will continue to be the same.  We could change the reaction function to be reducing by changing the return molecule to be only one.
 
 ```clojure
 (defn prime-reaction-reducing [a b]
@@ -162,11 +162,11 @@ Now that we have the power of Higher Order Chemical Programming, we can start to
 
 A recap of the [Dining Philosophers](https://en.wikipedia.org/wiki/Dining_philosophers_problem) problem is:
 
-```
-Five silent philosophers sit at a round table with bowls of spaghetti. Forks are placed between each pair of adjacent philosophers. (An alternative problem formulation uses rice and chopsticks instead of spaghetti and forks).
 
-Each philosopher must alternately think and eat. However, a philosopher can only eat spaghetti when he has both left and right forks. Each fork can be held by only one philosopher and so a philosopher can use the fork only if it is not being used by another philosopher. After he finishes eating, he needs to put down both forks so they become available to others. A philosopher can take the fork on his right or the one on his left as they become available, but cannot start eating before getting both of them.
-```
+>Five silent philosophers sit at a round table with bowls of spaghetti. Forks are placed between each pair of adjacent philosophers. (An alternative problem formulation uses rice and chopsticks instead of spaghetti and forks).
+
+>Each philosopher must alternately think and eat. However, a philosopher can only eat spaghetti when he has both left and right forks. Each fork can be held by only one philosopher and so a philosopher can use the fork only if it is not being used by another philosopher. After he finishes eating, he needs to put down both forks so they become available to others. A philosopher can take the fork on his right or the one on his left as they become available, but cannot start eating before getting both of them.
+
 
 In our experiment, we are going to have the philosophers in a line instead of a circle, (only because of my limited graphical skills), and we can describe them each as molecules.
 
@@ -225,5 +225,6 @@ The examples are all in ClojureScript and using Figwheel. The directories are or
 - higher-order
 - dining-philosophers
 - mail-system
+```
 
 You need to cd into the directory and the run `lein figwheel` to get started.  A port will open up for you so that you can open a web page at `localhost:3449`.
