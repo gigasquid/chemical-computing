@@ -1,0 +1,2 @@
+;; Analyzed by ClojureScript 0.0-2850
+{:defs {print-doc {:protocol-inline nil, :name cljs.repl/print-doc, :variadic false, :file "resources/public/js/compiled/out/cljs/repl.cljs", :end-column 17, :method-params ([m]), :protocol-impl nil, :arglists-meta (nil nil), :column 1, :methods ({:tag clj-nil, :variadic false, :max-fixed-arity 1}), :line 12, :end-line 12, :max-fixed-arity 1, :fn-var true, :arglists (quote ([m])), :test true}}, :name cljs.repl, :doc nil, :excludes #{}, :use-macros nil, :require-macros {cljs.repl cljs.repl}, :uses nil, :requires nil, :imports nil}

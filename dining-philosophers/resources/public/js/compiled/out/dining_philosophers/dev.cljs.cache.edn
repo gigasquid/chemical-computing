@@ -1,0 +1,2 @@
+;; Analyzed by ClojureScript 0.0-2850
+{:name dining-philosophers.dev, :doc nil, :excludes #{}, :use-macros nil, :require-macros nil, :uses nil, :requires {fw figwheel.client, figwheel.client figwheel.client, dining-philosophers.core dining-philosophers.core}, :imports nil}
