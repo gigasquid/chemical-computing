@@ -37,7 +37,7 @@ If we want to compute primes in a naive, traditional way in Clojure, we could ma
 ;; -> false
 ```
 
-Given a number, it make a list of all the possible factors from 2 up to that number.  It then loops through and checks to see if there any remainders by diving the number and those factors.  If there are any remainders that are zero, then it is not prime. Using this function, we can them find all the primes to 100.
+Given a number, it make a list of all the possible factors from 2 up to that number.  It then loops through and checks to see if there any remainders by diving the number and those factors.  If there are any remainders that are zero, then it is not prime. Using this function, we can then find all the primes to 100.
 
 ```clojure
 (defn gen-primes [n]
@@ -103,10 +103,10 @@ Once it has obtained this steady state, we can take a measurement of the solutio
 
 ## Gamma Chemical Programming
 
-The prime program that we were just exploring is an example of a _Gamma Program_.  It was the first model of computation for a chemical model proposedaround 1986.  The hallmarks of a gamma program are:
+The prime program that we were just exploring is an example of a _Gamma Program_.  It was the first model of computation for a chemical model proposed around 1986.  The hallmarks of a gamma program are:
 
 - Reaction rules that work on multisets of _molecule elements_
-- Reaction rules are made up of a condition and a action
+- Reaction rules are made up of a condition and an action
 - Execution takes place when the reaction replaces the elements with new elements from reaction result
 - The result of the Gamma program is obtained when the solution reaches a steady-state.
 
@@ -114,7 +114,7 @@ Another example of a Gamma program is simple calculation for a _max_.
 
 ![prime reaction](./images/max-reaction.png)
 
-So far we have been showing examples in Clojure code with no visualization.  But with the help of ClojureScript and core.async.  We can actually make a simulation of a gamma program.  In this simulation, the integers-molecules are shown as being circles floating around in a solution.  They react with each other when they collide.  Each molecule is running its own movement and reaction in its own core.async go-loop.  State is coordinated through a global atom map that keeps track of the position and value of each molecule.  The result is continuously updated on the bottom by sampling the solution with a distinct/sort.
+So far we have been showing examples in Clojure code with no visualization.  But with the help of ClojureScript and core.async we can actually make a simulation of a gamma program.  In this simulation, the integers-molecules are shown as being circles floating around in a solution.  They react with each other when they collide.  Each molecule is running its own movement and reaction in its own core.async go-loop.  State is coordinated through a global atom map that keeps track of the position and value of each molecule.  The result is continuously updated on the bottom by sampling the solution with a distinct/sort.
 
 
 [ClojureScript Gamma Demo](http://gigasquidsoftware.com/chemical-computing/gamma/resources/public/index.html)
@@ -195,7 +195,7 @@ We use the Higher Order Programming model to describe the mail system as molecul
 - Mail molecule (pink) that consists of a two character value like "a1".  The first char is the address of the domain of the mail server.  The last char is the address of the box of the recipient.
 - In Mailbox molecule (wheat) that has a mailbox address like "a1".  It is a function molecule and can only react with mailbox molecules that match its address.  If the mail message matches it, it will capture it and add it to the global atom of mail received.
 - Server molecule (lightblue) that is a function and can only capture and react with mail message molecules.  If the mail message matches the domain it will route it to the right or left according to it's function.
-- Inactive Server Molecule (lightgray)- doesn't react with anything
+- Inactive Server Molecule (lightgray) - doesn't react with anything
 - Network molecule (lightgreen) that is a function that reacts with mail messages and routes them to the right server.
 - Server Crash molecule (red) that is a function molecule that reacts with a Server Molecule and turns it into an Inactive Server molecule.  It is also a _one-shot_ function molecule that just hatches once and does not keep going.
 - Server Fixes Molecule (green) - This only reacts with an Inactive Server molecule and turns it into a Server Molecule.
