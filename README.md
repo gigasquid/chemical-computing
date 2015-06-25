@@ -1,6 +1,6 @@
-# Chemical Programming
+# Chemical Computing
 
-![Chemical Programming](./images/primes-screenshot.png)
+![Chemical Computing](./images/primes-screenshot.png)
 
 
 Experiments and explorations in Abstract Chemical Programming based on
@@ -12,7 +12,7 @@ the works of:
 - [Programming Self-Organizing Systems with the Higher-Order Chemical Language by JEAN-PIERRE BANATRE, PASCAL FRADET, YANN RADENAC](http://pop-art.inrialpes.fr/~fradet/PDFs/IJUC06a.pdf)
 
 
-## What is Chemical Programming?
+## What is Chemical Computing/ Programming?
 
 Nature and all living things use chemical reactions to process information on a molecular level.  A few examples are the endocrine system that uses hormones to broadcast information throughout the body, the adaptive defensive processing of the immune system, and signal processing in bacteria. What can we learn from nature about computation?
 
