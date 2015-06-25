@@ -8,8 +8,6 @@
 
 (enable-console-print!)
 
-;; define your app data so that it doesn't get over-written on reload
-
 (def canvas (-> js/document (.getElementById "canvas")))
 (def context (.getContext canvas "2d"))
 (def width (.-width canvas))
@@ -21,7 +19,6 @@
 (def colors ["red" "pink" "lightgray" "lightblue" "green" "lightgreen" "orange" "yellow"])
 (defonce world (atom {}))
 (def running (atom false))
-
 
 (defn setColor [context color]
   (set! (.-fillStyle context) color)
@@ -182,19 +179,19 @@
                         {:id 2 :x 100 :y 200 :val 2 :color "pink" :dx 0.5 :dy 0.0}])
 
 (defn small-example-primes []
-  (ef/at "#experiment-title" (ef/content "Prime Example with Two Molecules"))
+  (ef/at "#gamma-experiment-title" (ef/content "Prime Example with Two Molecules"))
   (setup-mols example-primes-mols prime-reaction))
 
 (defn primes-to-100 []
-  (ef/at "#experiment-title" (ef/content "Primes to 100"))
+  (ef/at "#gamma-experiment-title" (ef/content "Primes to 100"))
   (setup (range 2 101) prime-reaction))
 
 (defn small-example-max []
-  (ef/at "#experiment-title" (ef/content "Max Example with Two Molecules"))
+  (ef/at "#gamma-experiment-title" (ef/content "Max Example with Two Molecules"))
   (setup-mols example-maxs-mols max-reaction))
 
 (defn max-to-99 []
-  (ef/at "#experiment-title" (ef/content "Max to 99"))
+  (ef/at "#gamma-experiment-title" (ef/content "Max to 99"))
   (setup (range 1 100) max-reaction))
 
 
@@ -207,25 +204,25 @@
 ;; Button event handling
 
 
-(ef/at "#small-prime-button" (ev/listen :click
+(ef/at "#gamma-small-prime-button" (ev/listen :click
                                         #(go
                                            (stop)
                                            (<! (timeout 1000))
                                            (restart)
                                            (small-example-primes)))
-       "#prime-button" (ev/listen :click
+       "#gamma-prime-button" (ev/listen :click
                                   #(go
                                      (stop)
                                      (<! (timeout 1000))
                                      (restart)
                                      (primes-to-100)))
-       "#small-max-button" (ev/listen :click
+       "#gamma-small-max-button" (ev/listen :click
                                         #(go
                                            (stop)
                                            (<! (timeout 1000))
                                            (restart)
                                            (small-example-max)))
-       "#max-button" (ev/listen :click
+       "#gamma-max-button" (ev/listen :click
                                   #(go
                                      (stop)
                                      (<! (timeout 1000))

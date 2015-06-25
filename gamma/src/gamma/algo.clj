@@ -23,7 +23,7 @@
   (is (= prime-to-100 (gen-primes 100))))
 
 (defn prime-reaction [[a b]]
-  (if (and (not= a b)
+  (if (and (> a b)
            (zero? (mod a b)))
     [(/ a b) b]
     [a b]))
@@ -61,5 +61,10 @@
 (deftest test-prime-reaction-cycle
   (let [reactions (reaction-cycle 10000)]
     (is (= prime-to-100 (-> reactions distinct sort)))))
+
+(let [reactions (reaction-cycle 10000)]
+  (-> reactions distinct sort))
+;; -> (2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97)
+
 
 (run-tests)

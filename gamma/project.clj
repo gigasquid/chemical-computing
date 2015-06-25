@@ -8,6 +8,8 @@
                  [org.clojure/clojurescript "0.0-2850"]
                  [figwheel "0.2.5-SNAPSHOT"]
                  [org.clojure/core.async "0.1.346.0-17112a-alpha"]
+                 [org.clojure/tools.nrepl                     "0.2.10" :exclusions [org.clojure/clojure]]
+                 [cider/cider-nrepl                           "0.9.0" :exclusions [org.clojure/tools.nrepl]]
                  [enfocus "2.1.1"]]
 
   :plugins [[lein-cljsbuild "1.0.4"]
