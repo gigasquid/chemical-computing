@@ -1,6 +1,6 @@
 # Chemical Programming
 
-![Chemical Programming](http://c2.staticflickr.com/6/5519/14460376725_205fe82f41_c.jpg)
+![Chemical Programming](./images/primes-screenshot.png)
 
 
 Experiments and explorations in Abstract Chemical Programming based on
