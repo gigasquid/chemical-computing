@@ -117,7 +117,7 @@ Another example of a Gamma program is simple calculation for a _max_.
 So far we have been showing examples in Clojure code with no visualization.  But with the help of ClojureScript and core.async we can actually make a simulation of a gamma program.  In this simulation, the integers-molecules are shown as being circles floating around in a solution.  They react with each other when they collide.  Each molecule is running its own movement and reaction in its own core.async go-loop.  State is coordinated through a global atom map that keeps track of the position and value of each molecule.  The result is continuously updated on the bottom by sampling the solution with a distinct/sort.
 
 
-[ClojureScript Gamma Demo](http://gigasquidsoftware.com/chemical-computing/gamma/resources/public/index.html)
+[ClojureScript Gamma Demo](http://gigasquidsoftware.com/chemical-computing/gamma.html)
 
 
 One of the things to note is that we no longer care about any order of operations.  In our original, traditional approach, we cycled through a list in a sequential order.  In the Chemical Programming approach, we have abstracted the reaction to a higher level that no longer cares about order of operations.  This allows us to harness the full powers of concurrency to our problems.
@@ -153,7 +153,7 @@ Now the solution will get continually smaller, at the end of the stable state so
 
 The simulation in ClojureScript shows examples with prime and max function molecules.  As a function captures a molecule, it will appear with a red ring around the grey function molecule.  When it captures another, it will hatch into the result molecules.  There are examples of prime and max function molecules that keep the reaction the same size as well as reducing.  To enable collision mixing when the solution gets smaller with the reducing function, the function molecules where given the additional ability to trade captured values when they collided.
 
-[ClojureScript Higher Order Demo](http://gigasquidsoftware.com/chemical-computing/higher-order/resources/public/index.html)
+[ClojureScript Higher Order Demo](http://gigasquidsoftware.com/chemical-computing/higher-order.html)
 
 
 ### Dining Philosophers
@@ -183,7 +183,7 @@ A Think function molecule only reacts with an Eating Philosopher, (EP) molecule.
 Again, all molecule are operating independently and concurrently in their own go-loop and molecule capture, (like forks), are happening atomicly.
 
 
-[ClojureScript Dining Philosopher Demo](http://gigasquidsoftware.com/chemical-computing/dining-philosophers/resources/public/index.html)
+[ClojureScript Dining Philosopher Demo](http://gigasquidsoftware.com/chemical-computing/dining-philosophers.html)
 
 
 ### Self Healing Mail System
@@ -204,7 +204,7 @@ We use the Higher Order Programming model to describe the mail system as molecul
 This simulation is a bit different because it uses collections of membrane molecules to form _walls_ to keep the molecules segregated in different areas.  It acts as a way to allow the mail messages to move to different sub solutions in the overall system. Mail molecules are generated and as they interact with their environment, they eventually find their way to the destination mailbox.  In the same way, the system can recover, or _self-heal_ from server crashes by having Server Fix molecules patrolling the area.
 
 
-[ClojureScript Self Organizing and Self Healing Mail System Demo](http://gigasquidsoftware.com/chemical-computing/mail-system/resources/public/index.html)
+[ClojureScript Self Organizing and Self Healing Mail System Demo](http://gigasquidsoftware.com/chemical-computing/mail-system.html)
 
 
 
@@ -234,7 +234,7 @@ You need to cd into the directory and the run `lein figwheel` to get started.  A
 
 Here is a link of all the experiment demos
 
-- [Gamma Demo](http://gigasquidsoftware.com/chemical-computing/gamma/resources/public/index.html)
-- [Higher Order Demo](http://gigasquidsoftware.com/chemical-computing/higher-order/resources/public/index.html)
-- [Dining Philosopher Demo](http://gigasquidsoftware.com/chemical-computing/dining-philosophers/resources/public/index.html)
-- [Self Organizing and Self Healing Mail System Demo](http://gigasquidsoftware.com/chemical-computing/mail-system/resources/public/index.html)
+- [Gamma Demo](http://gigasquidsoftware.com/chemical-computing/gamma.html)
+- [Higher Order Demo](http://gigasquidsoftware.com/chemical-computing/higher-order.html)
+- [Dining Philosopher Demo](http://gigasquidsoftware.com/chemical-computing/dining-philosophers.html)
+- [Self Organizing and Self Healing Mail System Demo](http://gigasquidsoftware.com/chemical-computing/mail-system.html)
