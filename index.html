@@ -37,25 +37,25 @@
     <p>If we want to compute primes in a naive, traditional way in Clojure, we could make a <em>is-prime?</em> function:</p>
 
     <pre><code class="clj">
-        (defn is-prime? [n]
-        (let [possible-factors (range 2 n)
+(defn is-prime? [n]
+  (let [possible-factors (range 2 n)
         remainders (map #(mod n %) possible-factors)]
-        (not (some zero? remainders))))
+    (not (some zero? remainders))))
 
-        (is-prime? 5)
-        ;; -> true
+(is-prime? 5)
+;; -> true
 
-        (is-prime? 6)
-        ;; -> false
+(is-prime? 6)
+;; -> false
     </code></pre>
 
     <p>Given a number, it make a list of all the possible factors from 2 up to that number.  It then loops through and checks to see if there any remainders by diving the number and those factors.  If there are any remainders that are zero, then it is not prime. Using this function, we can then find all the primes to 100.</p>
 
     <pre><code class="clj">
-        (defn gen-primes [n]
-        (filter is-prime? (range 2 (inc n))))
+(defn gen-primes [n]
+  (filter is-prime? (range 2 (inc n))))
 
-        ;=> (2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97)
+ ;=> (2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97)
     </code></pre>
 
     <p>Now, let's look at how we would approach the same problem using Chemical Programming.  The first big difference is that we are going to consider all the integers as molecules.  When two of these integer-molecules meet, they react according to a <em>prime-reaction</em>.  The two molecules react accordingly.</p>
@@ -65,39 +65,39 @@
     <p>We can express this <em>prime-reaction</em> in code with</p>
 
     <pre><code class="clj">
-        (defn prime-reaction [[a b]]
-        (if (and (> a b)
-        (zero? (mod a b)))
-        [(/ a b) b]
-        [a b]))
+(defn prime-reaction [[a b]]
+  (if (and (> a b)
+           (zero? (mod a b)))
+    [(/ a b) b]
+    [a b]))
 
-        (prime-reaction [6 2])
-        ;; -> [3 2]
+(prime-reaction [6 2])
+;; -> [3 2]
 
-        (prime-reaction [5 2])
-        ;; -> [5 2]
+(prime-reaction [5 2])
+;; -> [5 2]
     </code></pre>
 
     <p>We can then define our molecules as a range of integers from 2 to 100
       and have a <em>mix-and-react-function</em> that will take them and randomly have them interact pairwise by shuffling and partitioning the list.</p>
 
     <pre><code class="clj">
-        (def molecules (range 2 101))
+(def molecules (range 2 101))
 
-        (defn mix-and-react [mols]
-        (let [mixed (partition 2 (shuffle mols))
+(defn mix-and-react [mols]
+  (let [mixed (partition 2 (shuffle mols))
         reacted (map prime-reaction mixed)]
-        (flatten reacted)))
+    (flatten reacted)))
 
-        (take 10 (mix-and-react molecules))
-        ;; -> (37 48 87 46 38 91 68 13 39 33)
+(take 10 (mix-and-react molecules))
+;; -> (37 48 87 46 38 91 68 13 39 33)
     </code></pre>
 
     <p>We can see that some changes are being made after one mix and react cycle, but we will need more.</p>
 
     <pre><code class="clj">
-        (take 10 (reaction-cycle 100))
-        ;; -> (2 2 11 23 2 2 5 3 79 17)
+(take 10 (reaction-cycle 100))
+;; -> (2 2 11 23 2 2 5 3 79 17)
     </code></pre>
 
     <p>After 100 reactions, we can see that the primes are starting to emerge.  This brings us to an important point in Chemical Programming, that the result is obtained after the solution becomes <em>steady-state</em>, meaning there are no more changes after reactions.</p>
@@ -105,9 +105,9 @@
     <p>Once it has obtained this steady state, we can take a measurement of the solution.  In this case we are going to apply a <em>distinct</em> and a <em>sort</em> to all the molecules to get our answer after 1000 reaction cycles.</p>
 
     <pre><code class="clj">
-        (let [reactions (reaction-cycle 10000)]
-        (-> reactions distinct sort))
-        ;; -> (2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97)
+(let [reactions (reaction-cycle 10000)]
+  (-> reactions distinct sort))
+;; -> (2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97)
     </code></pre>
 
     <h2>Gamma Chemical Programming</h2>
@@ -163,11 +163,11 @@
     <p>There is a molecule that has as its value a <em>prime-reaction</em> function. The reaction function takes two arguments</p>
 
     <pre><code class="clj">
-        defn prime-reaction [a b]
-        (if (and (> a b)
-        (zero? (mod a b)))
-        [(/ a b) b]
-        [a b]))
+(defn prime-reaction [a b]
+  (if (and (> a b)
+           (zero? (mod a b)))
+    [(/ a b) b]
+    [a b]))
     </code></pre>
 
     <p>If the function molecule encounters a value molecule, it will capture it.  If it has captured enough value molecules to satisfy the arity of the reaction function, (in the prime function it is two), then it will <em>hatch</em>.  The process of hatching will apply the function to the values and create new molecules out of the result. The function molecules are considered <em>n-shot</em> in our experiments.  This means that after the function molecule <em>hatches</em>, it will have the result being the new value molecules as well as the original function molecule with no captured arguments.  In this way, it can continue to react in solution.</p>
@@ -175,11 +175,11 @@
     <p>There are interesting ways that these reaction function molecules can control the growth of the solution. The previous <em>prime-reaction</em> function took in two molecules and returned two-molecules.  The number of molecules in the solution will continue to be the same.  We could change the reaction function to be reducing by changing the return molecule to be only one.</p>
 
     <pre><code class="clj">
-        (defn prime-reaction-reducing [a b]
-        (if (and (> a b)
-        (zero? (mod a b)))
-        [b]
-        [a b]))
+(defn prime-reaction-reducing [a b]
+  (if (and (> a b)
+           (zero? (mod a b)))
+    [b]
+    [a b]))
     </code></pre>
 
     <p>Now the solution will get continually smaller, at the end of the stable state solution, only the primes, will remain.</p>
