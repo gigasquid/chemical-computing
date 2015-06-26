@@ -74,7 +74,7 @@
                         (name :in-mail-b1)
 
                         (= in-mail-b2 val)
-                        (name :in-mail-a1)
+                        (name :in-mail-b2)
 
                         (= crash val)
                         (name :crash)
