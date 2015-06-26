@@ -126,7 +126,7 @@ gamma.core.max_reaction = (function max_reaction(molecule_a,molecule_b){
 var a = cljs.core.constant$keyword$47.cljs$core$IFn$_invoke$arity$1(molecule_a);
 var b = cljs.core.constant$keyword$47.cljs$core$IFn$_invoke$arity$1(molecule_b);
 if((b > a)){
-return cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(molecule_a,cljs.core.constant$keyword$47,b);
+return cljs.core.assoc.cljs$core$IFn$_invoke$arity$variadic(molecule_a,cljs.core.constant$keyword$47,b,cljs.core.array_seq([cljs.core.constant$keyword$46,cljs.core.constant$keyword$46.cljs$core$IFn$_invoke$arity$1(molecule_b)], 0));
 } else {
 return molecule_a;
 }
