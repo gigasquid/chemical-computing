@@ -91,7 +91,7 @@
   (let [a (:val molecule-a)
         b (:val molecule-b)]
     (if (> b a)
-      (assoc molecule-a :val b)
+      (assoc molecule-a :val b :color (:color molecule-b))
       molecule-a)))
 
 (defn gen-molecule [id val]
