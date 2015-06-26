@@ -5,7 +5,7 @@ goog.require('enfocus.events');
 goog.require('enfocus.core');
 goog.require('cljs.core.async');
 cljs.core.enable_console_print_BANG_.call(null);
-mail_system.core.canvas = document.getElementById("canvas");
+mail_system.core.canvas = document.getElementById("mail-canvas");
 mail_system.core.context = mail_system.core.canvas.getContext("2d");
 mail_system.core.width = mail_system.core.canvas.width;
 mail_system.core.height = mail_system.core.canvas.height;
@@ -70,7 +70,8 @@ var d = cljs.core.get.call(null,map__9993__$1,new cljs.core.Keyword(null,"d","d"
 var y = cljs.core.get.call(null,map__9993__$1,new cljs.core.Keyword(null,"y","y",-1757859776));
 var x = cljs.core.get.call(null,map__9993__$1,new cljs.core.Keyword(null,"x","x",2099068185));
 if(cljs.core.truth_(val)){
-var display_val = ((cljs.core.fn_QMARK_.call(null,val))?val.name:val);
+var display_val = ((cljs.core._EQ_.call(null,mail_system.core.server_a,val))?cljs.core.name.call(null,new cljs.core.Keyword(null,"server-a","server-a",1732785095)):((cljs.core._EQ_.call(null,mail_system.core.server_b,val))?cljs.core.name.call(null,new cljs.core.Keyword(null,"server-b","server-b",-1534725303)):((cljs.core._EQ_.call(null,mail_system.core.network,val))?cljs.core.name.call(null,new cljs.core.Keyword(null,"network","network",2050004697)):((cljs.core._EQ_.call(null,mail_system.core.in_mail_a1,val))?cljs.core.name.call(null,new cljs.core.Keyword(null,"in-mail-a1","in-mail-a1",113875827)):((cljs.core._EQ_.call(null,mail_system.core.in_mail_a2,val))?cljs.core.name.call(null,new cljs.core.Keyword(null,"in-mail-a2","in-mail-a2",1651150918)):((cljs.core._EQ_.call(null,mail_system.core.in_mail_b1,val))?cljs.core.name.call(null,new cljs.core.Keyword(null,"in-mail-b1","in-mail-b1",162896748)):((cljs.core._EQ_.call(null,mail_system.core.in_mail_b2,val))?cljs.core.name.call(null,new cljs.core.Keyword(null,"in-mail-a1","in-mail-a1",113875827)):((cljs.core._EQ_.call(null,mail_system.core.crash,val))?cljs.core.name.call(null,new cljs.core.Keyword(null,"crash","crash",-1024911330)):((cljs.core._EQ_.call(null,mail_system.core.fixes,val))?cljs.core.name.call(null,new cljs.core.Keyword(null,"fixes","fixes",-1313940430)):val.name
+)))))))));
 mail_system.core.draw_circle.call(null,mail_system.core.context,color,d,x,y);
 
 var G__9994 = mail_system.core.context;
@@ -750,7 +751,7 @@ if(cljs.core.truth_(cljs.core.deref.call(null,mail_system.core.running))){
 mail_system.core.draw_molecules.call(null,cljs.core.vals.call(null,cljs.core.deref.call(null,mail_system.core.world)));
 
 var answer = mail_system.core.measurement.call(null);
-return enfocus.core.at.call(null,"#answer",enfocus.core.content.call(null,[cljs.core.str(answer)].join('')));
+return enfocus.core.at.call(null,"#mail-answer",enfocus.core.content.call(null,[cljs.core.str(answer)].join('')));
 } else {
 return mail_system.core.setLoading.call(null,mail_system.core.context);
 }
@@ -869,24 +870,24 @@ mail_system.core.stop = (function stop(){
 return cljs.core.reset_BANG_.call(null,mail_system.core.running,false);
 });
 mail_system.core.server_a = (function server_a(mol){
-var to_server = [cljs.core.str(cljs.core.first.call(null,new cljs.core.Keyword(null,"val","val",128701612).cljs$core$IFn$_invoke$arity$1(mol)))].join('');
-if(cljs.core._EQ_.call(null,to_server,"a")){
+var to_server = cljs.core.keyword.call(null,[cljs.core.str(cljs.core.first.call(null,new cljs.core.Keyword(null,"val","val",128701612).cljs$core$IFn$_invoke$arity$1(mol).name))].join(''));
+if(cljs.core._EQ_.call(null,to_server,new cljs.core.Keyword(null,"a","a",-2123407586))){
 return new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"move-to","move-to",-127537048),new cljs.core.Keyword(null,"left","left",-399115937),new cljs.core.Keyword(null,"new-val","new-val",-738158599),new cljs.core.Keyword(null,"val","val",128701612).cljs$core$IFn$_invoke$arity$1(mol)], null)], null);
 } else {
 return new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"move-to","move-to",-127537048),new cljs.core.Keyword(null,"right","right",-452581833),new cljs.core.Keyword(null,"new-val","new-val",-738158599),new cljs.core.Keyword(null,"val","val",128701612).cljs$core$IFn$_invoke$arity$1(mol)], null)], null);
 }
 });
 mail_system.core.server_b = (function server_b(mol){
-var to_server = [cljs.core.str(cljs.core.first.call(null,new cljs.core.Keyword(null,"val","val",128701612).cljs$core$IFn$_invoke$arity$1(mol)))].join('');
-if(cljs.core._EQ_.call(null,to_server,"b")){
+var to_server = cljs.core.keyword.call(null,[cljs.core.str(cljs.core.first.call(null,new cljs.core.Keyword(null,"val","val",128701612).cljs$core$IFn$_invoke$arity$1(mol).name))].join(''));
+if(cljs.core._EQ_.call(null,to_server,new cljs.core.Keyword(null,"b","b",1482224470))){
 return new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"move-to","move-to",-127537048),new cljs.core.Keyword(null,"right","right",-452581833),new cljs.core.Keyword(null,"new-val","new-val",-738158599),new cljs.core.Keyword(null,"val","val",128701612).cljs$core$IFn$_invoke$arity$1(mol)], null)], null);
 } else {
 return new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"move-to","move-to",-127537048),new cljs.core.Keyword(null,"left","left",-399115937),new cljs.core.Keyword(null,"new-val","new-val",-738158599),new cljs.core.Keyword(null,"val","val",128701612).cljs$core$IFn$_invoke$arity$1(mol)], null)], null);
 }
 });
 mail_system.core.network = (function network(mol){
-var to_server = [cljs.core.str(cljs.core.first.call(null,new cljs.core.Keyword(null,"val","val",128701612).cljs$core$IFn$_invoke$arity$1(mol)))].join('');
-if(cljs.core._EQ_.call(null,to_server,"b")){
+var to_server = cljs.core.keyword.call(null,[cljs.core.str(cljs.core.first.call(null,new cljs.core.Keyword(null,"val","val",128701612).cljs$core$IFn$_invoke$arity$1(mol).name))].join(''));
+if(cljs.core._EQ_.call(null,to_server,new cljs.core.Keyword(null,"b","b",1482224470))){
 return new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"move-to","move-to",-127537048),new cljs.core.Keyword(null,"right","right",-452581833),new cljs.core.Keyword(null,"new-val","new-val",-738158599),new cljs.core.Keyword(null,"val","val",128701612).cljs$core$IFn$_invoke$arity$1(mol)], null)], null);
 } else {
 return new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"move-to","move-to",-127537048),new cljs.core.Keyword(null,"left","left",-399115937),new cljs.core.Keyword(null,"new-val","new-val",-738158599),new cljs.core.Keyword(null,"val","val",128701612).cljs$core$IFn$_invoke$arity$1(mol)], null)], null);
@@ -929,7 +930,7 @@ return (cljs.core._EQ_.call(null,v,mail_system.core.server_a)) || (cljs.core._EQ
 });
 mail_system.core.gen_server_fixes_molecule = (function gen_server_fixes_molecule(x,y){
 return cljs.core.assoc.call(null,mail_system.core.gen_molecule.call(null,cljs.core.val),new cljs.core.Keyword(null,"d","d",1972142424),(18),new cljs.core.Keyword(null,"color","color",1011675173),"green",new cljs.core.Keyword(null,"x","x",2099068185),x,new cljs.core.Keyword(null,"y","y",-1757859776),y,new cljs.core.Keyword(null,"val","val",128701612),mail_system.core.fixes,new cljs.core.Keyword(null,"allowed-arg-fn","allowed-arg-fn",1264202177),(function (v){
-return cljs.core._EQ_.call(null,v,"inactive");
+return cljs.core._EQ_.call(null,v,new cljs.core.Keyword(null,"inactive","inactive",-306247616));
 }),new cljs.core.Keyword(null,"args","args",1315556576),cljs.core.PersistentVector.EMPTY);
 });
 mail_system.core.gen_in_mailbox_molecule = (function gen_in_mailbox_molecule(x,y,val,mailbox_address){
@@ -939,7 +940,7 @@ return cljs.core._EQ_.call(null,v,mailbox_address);
 });
 mail_system.core.gen_network_molecule = (function gen_network_molecule(x,y){
 return cljs.core.PersistentHashMap.fromArrays([new cljs.core.Keyword(null,"y","y",-1757859776),new cljs.core.Keyword(null,"args","args",1315556576),new cljs.core.Keyword(null,"allowed-arg-fn","allowed-arg-fn",1264202177),new cljs.core.Keyword(null,"dx","dx",-381796732),new cljs.core.Keyword(null,"color","color",1011675173),new cljs.core.Keyword(null,"dy","dy",1719547243),new cljs.core.Keyword(null,"val","val",128701612),new cljs.core.Keyword(null,"id","id",-1388402092),new cljs.core.Keyword(null,"d","d",1972142424),new cljs.core.Keyword(null,"x","x",2099068185)],[y,cljs.core.PersistentVector.EMPTY,(function (v){
-return true;
+return (v instanceof cljs.core.Keyword);
 }),0.0,"lightgreen",0.0,mail_system.core.network,cljs.core.swap_BANG_.call(null,mail_system.core.mol_id_counter,cljs.core.inc),(40),x]);
 });
 mail_system.core.gen_membrane_mol = (function gen_membrane_mol(x,y){
@@ -949,35 +950,23 @@ return false;
 });
 mail_system.core.gen_server_molecule = (function gen_server_molecule(x,y,val){
 return cljs.core.PersistentHashMap.fromArrays([new cljs.core.Keyword(null,"y","y",-1757859776),new cljs.core.Keyword(null,"args","args",1315556576),new cljs.core.Keyword(null,"allowed-arg-fn","allowed-arg-fn",1264202177),new cljs.core.Keyword(null,"dx","dx",-381796732),new cljs.core.Keyword(null,"color","color",1011675173),new cljs.core.Keyword(null,"dy","dy",1719547243),new cljs.core.Keyword(null,"val","val",128701612),new cljs.core.Keyword(null,"id","id",-1388402092),new cljs.core.Keyword(null,"d","d",1972142424),new cljs.core.Keyword(null,"x","x",2099068185)],[y,cljs.core.PersistentVector.EMPTY,(function (v){
-return typeof v === 'string';
+return (v instanceof cljs.core.Keyword);
 }),0.0,"lightblue",0.0,val,cljs.core.swap_BANG_.call(null,mail_system.core.mol_id_counter,cljs.core.inc),(35),x]);
 });
 mail_system.core.gen_inactive_server_molecule = (function gen_inactive_server_molecule(x,y){
-return new cljs.core.PersistentArrayMap(null, 8, [new cljs.core.Keyword(null,"id","id",-1388402092),cljs.core.swap_BANG_.call(null,mail_system.core.mol_id_counter,cljs.core.inc),new cljs.core.Keyword(null,"x","x",2099068185),x,new cljs.core.Keyword(null,"y","y",-1757859776),y,new cljs.core.Keyword(null,"d","d",1972142424),(35),new cljs.core.Keyword(null,"val","val",128701612),"inactive",new cljs.core.Keyword(null,"color","color",1011675173),"lightgrey",new cljs.core.Keyword(null,"dx","dx",-381796732),0.0,new cljs.core.Keyword(null,"dy","dy",1719547243),0.0], null);
+return new cljs.core.PersistentArrayMap(null, 8, [new cljs.core.Keyword(null,"id","id",-1388402092),cljs.core.swap_BANG_.call(null,mail_system.core.mol_id_counter,cljs.core.inc),new cljs.core.Keyword(null,"x","x",2099068185),x,new cljs.core.Keyword(null,"y","y",-1757859776),y,new cljs.core.Keyword(null,"d","d",1972142424),(35),new cljs.core.Keyword(null,"val","val",128701612),new cljs.core.Keyword(null,"inactive","inactive",-306247616),new cljs.core.Keyword(null,"color","color",1011675173),"lightgrey",new cljs.core.Keyword(null,"dx","dx",-381796732),0.0,new cljs.core.Keyword(null,"dy","dy",1719547243),0.0], null);
 });
 mail_system.core.gen_messages = (function gen_messages(to,n){
-var G__10255 = to;
+var G__10255 = (((to instanceof cljs.core.Keyword))?to.fqn:null);
 switch (G__10255) {
-case "b1":
+case "a2":
 return cljs.core.mapv.call(null,((function (G__10255){
-return (function (p1__10250_SHARP_){
-return mail_system.core.gen_mail_molecule.call(null,p1__10250_SHARP_,(200),to);
+return (function (p1__10253_SHARP_){
+return mail_system.core.gen_mail_molecule.call(null,p1__10253_SHARP_,(400),to);
 });})(G__10255))
 ,cljs.core.repeatedly.call(null,n,((function (G__10255){
 return (function (){
-return cljs.core.rand_int.call(null,(200));
-});})(G__10255))
-));
-
-break;
-case "b2":
-return cljs.core.mapv.call(null,((function (G__10255){
-return (function (p1__10251_SHARP_){
-return mail_system.core.gen_mail_molecule.call(null,p1__10251_SHARP_,(400),to);
-});})(G__10255))
-,cljs.core.repeatedly.call(null,n,((function (G__10255){
-return (function (){
-return cljs.core.rand_int.call(null,(200));
+return ((600) - cljs.core.rand_int.call(null,(200)));
 });})(G__10255))
 ));
 
@@ -994,14 +983,26 @@ return ((600) - cljs.core.rand_int.call(null,(200)));
 ));
 
 break;
-case "a2":
+case "b2":
 return cljs.core.mapv.call(null,((function (G__10255){
-return (function (p1__10253_SHARP_){
-return mail_system.core.gen_mail_molecule.call(null,p1__10253_SHARP_,(400),to);
+return (function (p1__10251_SHARP_){
+return mail_system.core.gen_mail_molecule.call(null,p1__10251_SHARP_,(400),to);
 });})(G__10255))
 ,cljs.core.repeatedly.call(null,n,((function (G__10255){
 return (function (){
-return ((600) - cljs.core.rand_int.call(null,(200)));
+return cljs.core.rand_int.call(null,(200));
+});})(G__10255))
+));
+
+break;
+case "b1":
+return cljs.core.mapv.call(null,((function (G__10255){
+return (function (p1__10250_SHARP_){
+return mail_system.core.gen_mail_molecule.call(null,p1__10250_SHARP_,(200),to);
+});})(G__10255))
+,cljs.core.repeatedly.call(null,n,((function (G__10255){
+return (function (){
+return cljs.core.rand_int.call(null,(200));
 });})(G__10255))
 ));
 
@@ -1012,20 +1013,8 @@ throw (new Error([cljs.core.str("No matching clause: "),cljs.core.str(to)].join(
 }
 });
 mail_system.core.gen_server_crash = (function gen_server_crash(to,n){
-var G__10260 = to;
+var G__10260 = (((to instanceof cljs.core.Keyword))?to.fqn:null);
 switch (G__10260) {
-case "b":
-return cljs.core.mapv.call(null,((function (G__10260){
-return (function (p1__10257_SHARP_){
-return mail_system.core.gen_server_crash_molecule.call(null,p1__10257_SHARP_,(300));
-});})(G__10260))
-,cljs.core.repeatedly.call(null,n,((function (G__10260){
-return (function (){
-return cljs.core.rand_int.call(null,(200));
-});})(G__10260))
-));
-
-break;
 case "a":
 return cljs.core.mapv.call(null,((function (G__10260){
 return (function (p1__10258_SHARP_){
@@ -1038,26 +1027,26 @@ return ((600) - cljs.core.rand_int.call(null,(200)));
 ));
 
 break;
+case "b":
+return cljs.core.mapv.call(null,((function (G__10260){
+return (function (p1__10257_SHARP_){
+return mail_system.core.gen_server_crash_molecule.call(null,p1__10257_SHARP_,(300));
+});})(G__10260))
+,cljs.core.repeatedly.call(null,n,((function (G__10260){
+return (function (){
+return cljs.core.rand_int.call(null,(200));
+});})(G__10260))
+));
+
+break;
 default:
 throw (new Error([cljs.core.str("No matching clause: "),cljs.core.str(to)].join('')));
 
 }
 });
 mail_system.core.gen_server_fixes = (function gen_server_fixes(to,n){
-var G__10265 = to;
+var G__10265 = (((to instanceof cljs.core.Keyword))?to.fqn:null);
 switch (G__10265) {
-case "b":
-return cljs.core.mapv.call(null,((function (G__10265){
-return (function (p1__10262_SHARP_){
-return mail_system.core.gen_server_fixes_molecule.call(null,p1__10262_SHARP_,(350));
-});})(G__10265))
-,cljs.core.repeatedly.call(null,n,((function (G__10265){
-return (function (){
-return cljs.core.rand_int.call(null,(200));
-});})(G__10265))
-));
-
-break;
 case "a":
 return cljs.core.mapv.call(null,((function (G__10265){
 return (function (p1__10263_SHARP_){
@@ -1066,6 +1055,18 @@ return mail_system.core.gen_server_fixes_molecule.call(null,p1__10263_SHARP_,(35
 ,cljs.core.repeatedly.call(null,n,((function (G__10265){
 return (function (){
 return ((600) - cljs.core.rand_int.call(null,(200)));
+});})(G__10265))
+));
+
+break;
+case "b":
+return cljs.core.mapv.call(null,((function (G__10265){
+return (function (p1__10262_SHARP_){
+return mail_system.core.gen_server_fixes_molecule.call(null,p1__10262_SHARP_,(350));
+});})(G__10265))
+,cljs.core.repeatedly.call(null,n,((function (G__10265){
+return (function (){
+return cljs.core.rand_int.call(null,(200));
 });})(G__10265))
 ));
 
@@ -1095,11 +1096,11 @@ return mail_system.core.gen_membrane_mol.call(null,(400),p1__10274_SHARP_);
 return mail_system.core.gen_membrane_mol.call(null,(400),p1__10275_SHARP_);
 }),cljs.core.range.call(null,(350),(390),(40))),cljs.core.mapv.call(null,(function (p1__10276_SHARP_){
 return mail_system.core.gen_membrane_mol.call(null,(400),p1__10276_SHARP_);
-}),cljs.core.range.call(null,(450),(630),(40))),new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [mail_system.core.gen_server_molecule.call(null,(400),(200),mail_system.core.server_b),mail_system.core.gen_server_molecule.call(null,(400),(300),mail_system.core.server_b),mail_system.core.gen_server_molecule.call(null,(400),(400),mail_system.core.server_b)], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [mail_system.core.gen_in_mailbox_molecule.call(null,(60),(50),mail_system.core.in_mail_a1,"a1"),mail_system.core.gen_in_mailbox_molecule.call(null,(540),(50),mail_system.core.in_mail_b1,"b1")], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [mail_system.core.gen_in_mailbox_molecule.call(null,(60),(550),mail_system.core.in_mail_a2,"a2"),mail_system.core.gen_in_mailbox_molecule.call(null,(540),(550),mail_system.core.in_mail_b2,"b2")], null),cljs.core.mapv.call(null,(function (p1__10277_SHARP_){
+}),cljs.core.range.call(null,(450),(630),(40))),new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [mail_system.core.gen_server_molecule.call(null,(400),(200),mail_system.core.server_b),mail_system.core.gen_server_molecule.call(null,(400),(300),mail_system.core.server_b),mail_system.core.gen_server_molecule.call(null,(400),(400),mail_system.core.server_b)], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [mail_system.core.gen_in_mailbox_molecule.call(null,(60),(50),mail_system.core.in_mail_a1,new cljs.core.Keyword(null,"a1","a1",553780937)),mail_system.core.gen_in_mailbox_molecule.call(null,(540),(50),mail_system.core.in_mail_b1,new cljs.core.Keyword(null,"b1","b1",-1270036758))], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [mail_system.core.gen_in_mailbox_molecule.call(null,(60),(550),mail_system.core.in_mail_a2,new cljs.core.Keyword(null,"a2","a2",424956801)),mail_system.core.gen_in_mailbox_molecule.call(null,(540),(550),mail_system.core.in_mail_b2,new cljs.core.Keyword(null,"b2","b2",1108940514))], null),cljs.core.mapv.call(null,(function (p1__10277_SHARP_){
 return mail_system.core.gen_membrane_mol.call(null,(0),p1__10277_SHARP_);
 }),cljs.core.range.call(null,(0),(650),(40))),cljs.core.mapv.call(null,(function (p1__10278_SHARP_){
 return mail_system.core.gen_membrane_mol.call(null,(600),p1__10278_SHARP_);
-}),cljs.core.range.call(null,(0),(650),(40))),mail_system.core.gen_messages.call(null,"b1",(5)),mail_system.core.gen_messages.call(null,"b2",(5)),mail_system.core.gen_messages.call(null,"a1",(5)),mail_system.core.gen_messages.call(null,"a2",(5)),mail_system.core.gen_server_crash.call(null,"a",(2)),mail_system.core.gen_server_crash.call(null,"b",(2)),mail_system.core.gen_server_fixes.call(null,"a",(1)),mail_system.core.gen_server_fixes.call(null,"b",(1)));
+}),cljs.core.range.call(null,(0),(650),(40))),mail_system.core.gen_messages.call(null,new cljs.core.Keyword(null,"b1","b1",-1270036758),(5)),mail_system.core.gen_messages.call(null,new cljs.core.Keyword(null,"b2","b2",1108940514),(5)),mail_system.core.gen_messages.call(null,new cljs.core.Keyword(null,"a1","a1",553780937),(5)),mail_system.core.gen_messages.call(null,new cljs.core.Keyword(null,"a2","a2",424956801),(5)),mail_system.core.gen_server_crash.call(null,new cljs.core.Keyword(null,"a","a",-2123407586),(2)),mail_system.core.gen_server_crash.call(null,new cljs.core.Keyword(null,"b","b",1482224470),(2)),mail_system.core.gen_server_fixes.call(null,new cljs.core.Keyword(null,"a","a",-2123407586),(1)),mail_system.core.gen_server_fixes.call(null,new cljs.core.Keyword(null,"b","b",1482224470),(1)));
 mail_system.core.mail_system = (function mail_system__$1(){
 return mail_system.core.setup_mols.call(null,mail_system.core.mail_system_mols);
 });
@@ -1161,11 +1162,11 @@ break;
 }
 });
 mail_system.core.more_mail = (function more_mail(){
-var mols = cljs.core.concat.call(null,mail_system.core.gen_messages.call(null,"b1",(2)),mail_system.core.gen_messages.call(null,"b2",(2)),mail_system.core.gen_messages.call(null,"a1",(2)),mail_system.core.gen_messages.call(null,"a2",(2)));
+var mols = cljs.core.concat.call(null,mail_system.core.gen_messages.call(null,new cljs.core.Keyword(null,"b1","b1",-1270036758),(2)),mail_system.core.gen_messages.call(null,new cljs.core.Keyword(null,"b2","b2",1108940514),(2)),mail_system.core.gen_messages.call(null,new cljs.core.Keyword(null,"a1","a1",553780937),(2)),mail_system.core.gen_messages.call(null,new cljs.core.Keyword(null,"a2","a2",424956801),(2)));
 return mail_system.core.add_mols_to_system.call(null,mols);
 });
 mail_system.core.more_server_crashes = (function more_server_crashes(){
-var mols = cljs.core.concat.call(null,mail_system.core.gen_server_crash.call(null,"a",(1)),mail_system.core.gen_server_crash.call(null,"b",(1)));
+var mols = cljs.core.concat.call(null,mail_system.core.gen_server_crash.call(null,new cljs.core.Keyword(null,"a","a",-2123407586),(1)),mail_system.core.gen_server_crash.call(null,new cljs.core.Keyword(null,"b","b",1482224470),(1)));
 return mail_system.core.add_mols_to_system.call(null,mols);
 });
 mail_system.core.clear.call(null);
@@ -1177,5 +1178,3 @@ return mail_system.core.add_mols_to_system.call(null,mail_system.core.more_mail.
 })),"#more-server-crashes",enfocus.events.listen.call(null,new cljs.core.Keyword(null,"click","click",1912301393),(function (){
 return mail_system.core.add_mols_to_system.call(null,mail_system.core.more_server_crashes.call(null));
 })));
-
-//# sourceMappingURL=core.js.map

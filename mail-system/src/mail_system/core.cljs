@@ -8,7 +8,7 @@
 
 (enable-console-print!)
 
-(def canvas (-> js/document (.getElementById "canvas")))
+(def canvas (-> js/document (.getElementById "mail-canvas")))
 (def context (.getContext canvas "2d"))
 (def width (.-width canvas))
 (def height (.-height canvas))
@@ -54,7 +54,36 @@
 
 (defn draw-molecule [{:keys [x y d val color args]}]
   (when val
-    (let [display-val (if (fn? val) (.-name val) val)]
+    (let [display-val (cond
+                        (= server-a val)
+                        (name :server-a)
+
+                        (= server-b val)
+                        (name :server-b)
+
+                        (= network val)
+                        (name :network)
+
+                        (= in-mail-a1 val)
+                        (name :in-mail-a1)
+
+                        (= in-mail-a2 val)
+                        (name :in-mail-a2)
+
+                        (= in-mail-b1 val)
+                        (name :in-mail-b1)
+
+                        (= in-mail-b2 val)
+                        (name :in-mail-a1)
+
+                        (= crash val)
+                        (name :crash)
+
+                        (= fixes val)
+                        (name :fixes)
+
+                        :else
+                        (.-name val))]
      (draw-circle context color d x y)
      (doto context
        (setText "black" "bold 11px Courier")
@@ -240,7 +269,7 @@
   (if @running
     (do (draw-molecules (vals @world))
         (let [answer (measurement)]
-          (ef/at "#answer" (ef/content (str  answer)))))
+          (ef/at "#mail-answer" (ef/content (str  answer)))))
     (setLoading context)))
 
 (defn time-loop []
@@ -265,20 +294,20 @@
 ;; Experiments
 
 (defn server-a [mol]
-  (let [to-server (str (first (:val mol)))]
-    (if (= to-server "a")
+  (let [to-server (keyword (str (first (.-name (:val mol)))))]
+    (if (= to-server :a)
       [{:move-to :left :new-val (:val mol)}]
       [{:move-to :right :new-val (:val mol)}])))
 
 (defn server-b [mol]
-  (let [to-server (str (first (:val mol)))]
-    (if (= to-server "b")
+  (let [to-server (keyword (str (first (.-name (:val mol)))))]
+    (if (= to-server :b)
       [{:move-to :right :new-val (:val mol)}]
       [{:move-to :left :new-val (:val mol)}])))
 
 (defn network [mol]
-  (let [to-server (str (first (:val mol)))]
-    (if (= to-server "b")
+  (let [to-server (keyword (str (first (.-name (:val mol)))))]
+    (if (= to-server :b)
       [{:move-to :right :new-val (:val mol)}]
       [{:move-to :left :new-val (:val mol)}])))
 
@@ -330,7 +359,7 @@
          :x x
          :y y
          :val fixes
-         :allowed-arg-fn (fn [v] (= v "inactive"))
+         :allowed-arg-fn (fn [v] (= v :inactive))
          :args []))
 
 (defn gen-in-mailbox-molecule [x y val mailbox-address]
@@ -354,7 +383,7 @@
    :color "lightgreen"
    :dx 0.0
    :dy 0.0
-   :allowed-arg-fn (fn [v] true)
+   :allowed-arg-fn (fn [v] (keyword? v))
    :args []})
 
 (defn gen-membrane-mol [x y]
@@ -378,7 +407,7 @@
    :color "lightblue"
    :dx 0.0
    :dy 0.0
-   :allowed-arg-fn (fn [v] (string? v))
+   :allowed-arg-fn (fn [v] (keyword? v))
    :args []})
 
 (defn gen-inactive-server-molecule [x y]
@@ -386,7 +415,7 @@
    :x x
    :y y
    :d 35
-   :val "inactive"
+   :val :inactive
    :color "lightgrey"
    :dx 0.0
    :dy 0.0})
@@ -394,21 +423,21 @@
 
 (defn gen-messages [to n]
   (case to
-    "b1" (mapv #(gen-mail-molecule % 200 to) (repeatedly n #(rand-int 200)))
-    "b2" (mapv #(gen-mail-molecule % 400 to) (repeatedly n #(rand-int 200)))
-    "a1" (mapv #(gen-mail-molecule % 200 to) (repeatedly n #(- 600 (rand-int 200))))
-    "a2" (mapv #(gen-mail-molecule % 400 to) (repeatedly n #(- 600 (rand-int 200))))))
+    :b1 (mapv #(gen-mail-molecule % 200 to) (repeatedly n #(rand-int 200)))
+    :b2 (mapv #(gen-mail-molecule % 400 to) (repeatedly n #(rand-int 200)))
+    :a1 (mapv #(gen-mail-molecule % 200 to) (repeatedly n #(- 600 (rand-int 200))))
+    :a2 (mapv #(gen-mail-molecule % 400 to) (repeatedly n #(- 600 (rand-int 200))))))
 
 (defn gen-server-crash [to n]
   (case to
-    "b" (mapv #(gen-server-crash-molecule % 300) (repeatedly n #(rand-int 200)))
-    "a" (mapv #(gen-server-crash-molecule % 300) (repeatedly n #(- 600 (rand-int 200))))
+    :b (mapv #(gen-server-crash-molecule % 300) (repeatedly n #(rand-int 200)))
+    :a (mapv #(gen-server-crash-molecule % 300) (repeatedly n #(- 600 (rand-int 200))))
 ))
 
 (defn gen-server-fixes [to n]
   (case to
-    "b" (mapv #(gen-server-fixes-molecule % 350) (repeatedly n #(rand-int 200)))
-    "a" (mapv #(gen-server-fixes-molecule % 350) (repeatedly n #(- 600 (rand-int 200))))
+    :b (mapv #(gen-server-fixes-molecule % 350) (repeatedly n #(rand-int 200)))
+    :a (mapv #(gen-server-fixes-molecule % 350) (repeatedly n #(- 600 (rand-int 200))))
 ))
 
 
@@ -431,20 +460,20 @@
                        (mapv #(gen-membrane-mol 400 %) (range 450 630 40))
 
                        [(gen-server-molecule 400 200 server-b) (gen-server-molecule 400 300 server-b) (gen-server-molecule 400 400 server-b)]
-                       [(gen-in-mailbox-molecule 60 50 in-mail-a1 "a1") (gen-in-mailbox-molecule 540 50 in-mail-b1 "b1")]
-                       [(gen-in-mailbox-molecule 60 550 in-mail-a2 "a2") (gen-in-mailbox-molecule 540 550 in-mail-b2 "b2")]
+                       [(gen-in-mailbox-molecule 60 50 in-mail-a1 :a1) (gen-in-mailbox-molecule 540 50 in-mail-b1 :b1)]
+                       [(gen-in-mailbox-molecule 60 550 in-mail-a2 :a2) (gen-in-mailbox-molecule 540 550 in-mail-b2 :b2)]
 
                        (mapv #(gen-membrane-mol 0 %) (range 0 650 40))
                        (mapv #(gen-membrane-mol 600 %) (range 0 650 40))
-                       (gen-messages "b1" 5)
-                       (gen-messages "b2" 5)
-                       (gen-messages "a1" 5)
-                       (gen-messages "a2" 5)
-                       (gen-server-crash "a" 2)
-                       (gen-server-crash "b" 2)
+                       (gen-messages :b1 5)
+                       (gen-messages :b2 5)
+                       (gen-messages :a1 5)
+                       (gen-messages :a2 5)
+                       (gen-server-crash :a 2)
+                       (gen-server-crash :b 2)
 
-                       (gen-server-fixes "a" 1)
-                       (gen-server-fixes "b" 1)
+                       (gen-server-fixes :a 1)
+                       (gen-server-fixes :b 1)
 
                        ))
 
@@ -457,15 +486,15 @@
     (molecule-reaction mol)))
 
 (defn more-mail []
-  (let [mols (concat (gen-messages "b1" 2)
-                     (gen-messages "b2" 2)
-                      (gen-messages "a1" 2)
-                      (gen-messages "a2" 2))]
+  (let [mols (concat (gen-messages :b1 2)
+                     (gen-messages :b2 2)
+                      (gen-messages :a1 2)
+                      (gen-messages :a2 2))]
     (add-mols-to-system mols)))
 
 (defn more-server-crashes []
-  (let [mols (concat (gen-server-crash "a" 1)
-                     (gen-server-crash "b" 1))]
+  (let [mols (concat (gen-server-crash :a 1)
+                     (gen-server-crash :b 1))]
     (add-mols-to-system mols)))
 
 (clear)

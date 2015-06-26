@@ -16,14 +16,13 @@ h3,h2,h1{
     width: 600px;
 }
 
-#canvas {
+.canvas {
     margin-left: 100px;
     border-radius: 25px;
     border: 2px solid #8AC007;
-    padding: 20px; 
+    padding: 20px;
 }
 button {
     padding: 5px;
     margin-bottom: 10px;
 }
-

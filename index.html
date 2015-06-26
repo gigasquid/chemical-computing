@@ -1,1 +1,286 @@
-Hi there
+<!DOCTYPE html>
+<html>
+  <head>
+    <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <link href="css/style.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/8.6/styles/default.min.css">
+    <script src="http://cdn.jsdelivr.net/highlight.js/8.6/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+  </head>
+  <body>
+
+<a href="https://github.com/gigasquid/chemical-computing"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/e7bbb0521b397edbd5fe43e7f760759336b5e05f/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677265656e5f3030373230302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png"></a>
+    <h1>Chemical Computing</h1>
+
+    <p><img src="./images/primes-screenshot.png" alt="Chemical Computing" title="" /></p>
+
+    <p>Experiments and explorations in Abstract Chemical Programming based on
+      the works of:</p>
+
+    <ul>
+      <li><a href="http://link.springer.com/chapter/10.1007/11527800_2">Chemical Computing - by Peter Dittrich</a></li>
+      <li><a href="http://link.springer.com/chapter/10.1007/11527800_7">Higher-Order Chemical Programming Style by J. -P. Banâtre, P. Fradet, Y. Radenac</a></li>
+      <li><a href="http://pop-art.inrialpes.fr/~fradet/PDFs/RULE04.pdf">Principles of Chemical Programming by Jean-Pierre Banˆatre, Pascal Fradet and Yann Radenac</a></li>
+      <li><a href="http://pop-art.inrialpes.fr/~fradet/PDFs/IJUC06a.pdf">Programming Self-Organizing Systems with the Higher-Order Chemical Language by JEAN-PIERRE BANATRE, PASCAL FRADET, YANN RADENAC</a></li>
+    </ul>
+
+    <h2>What is Chemical Computing/ Programming?</h2>
+
+    <p>Nature and all living things use chemical reactions to process information on a molecular level.  A few examples are the endocrine system that uses hormones to broadcast information throughout the body, the adaptive defensive processing of the immune system, and signal processing in bacteria. What can we learn from nature about computation?</p>
+
+    <p>The Chemical Programming we are exploring is <em>abstract</em>.  We are not actually going to create programs with real chemicals, (although that we be really cool as well).  Rather, we are going to use the <em>metaphor</em> of molecules and reactions to performing computations in general.  As we explore this new we of approaching programs, we can step back and see what are the advantages and trade-offs in our using this chemical metaphor in contrast to our traditional programming approach.</p>
+
+    <h2>It all starts with a reaction</h2>
+
+    <p>The heart of the Chemical Programming paradigm is the <em>reaction</em>.  It is what happens when two or more <em>molecules</em> react with each other.  Perhaps the simplest way to look at this is using an example.  In this case, let us look at calculating prime numbers.</p>
+
+    <p>If we want to compute primes in a naive, traditional way in Clojure, we could make a <em>is-prime?</em> function:</p>
+
+    <pre><code class="clj">
+        (defn is-prime? [n]
+        (let [possible-factors (range 2 n)
+        remainders (map #(mod n %) possible-factors)]
+        (not (some zero? remainders))))
+
+        (is-prime? 5)
+        ;; -> true
+
+        (is-prime? 6)
+        ;; -> false
+    </code></pre>
+
+    <p>Given a number, it make a list of all the possible factors from 2 up to that number.  It then loops through and checks to see if there any remainders by diving the number and those factors.  If there are any remainders that are zero, then it is not prime. Using this function, we can then find all the primes to 100.</p>
+
+    <pre><code class="clj">
+        (defn gen-primes [n]
+        (filter is-prime? (range 2 (inc n))))
+
+        ;=> (2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97)
+    </code></pre>
+
+    <p>Now, let's look at how we would approach the same problem using Chemical Programming.  The first big difference is that we are going to consider all the integers as molecules.  When two of these integer-molecules meet, they react according to a <em>prime-reaction</em>.  The two molecules react accordingly.</p>
+
+    <p><img src="./images/prime-reaction.png" alt="prime reaction" title="" /></p>
+
+    <p>We can express this <em>prime-reaction</em> in code with</p>
+
+    <pre><code class="clj">
+        (defn prime-reaction [[a b]]
+        (if (and (> a b)
+        (zero? (mod a b)))
+        [(/ a b) b]
+        [a b]))
+
+        (prime-reaction [6 2])
+        ;; -> [3 2]
+
+        (prime-reaction [5 2])
+        ;; -> [5 2]
+    </code></pre>
+
+    <p>We can then define our molecules as a range of integers from 2 to 100
+      and have a <em>mix-and-react-function</em> that will take them and randomly have them interact pairwise by shuffling and partitioning the list.</p>
+
+    <pre><code class="clj">
+        (def molecules (range 2 101))
+
+        (defn mix-and-react [mols]
+        (let [mixed (partition 2 (shuffle mols))
+        reacted (map prime-reaction mixed)]
+        (flatten reacted)))
+
+        (take 10 (mix-and-react molecules))
+        ;; -> (37 48 87 46 38 91 68 13 39 33)
+    </code></pre>
+
+    <p>We can see that some changes are being made after one mix and react cycle, but we will need more.</p>
+
+    <pre><code class="clj">
+        (take 10 (reaction-cycle 100))
+        ;; -> (2 2 11 23 2 2 5 3 79 17)
+    </code></pre>
+
+    <p>After 100 reactions, we can see that the primes are starting to emerge.  This brings us to an important point in Chemical Programming, that the result is obtained after the solution becomes <em>steady-state</em>, meaning there are no more changes after reactions.</p>
+
+    <p>Once it has obtained this steady state, we can take a measurement of the solution.  In this case we are going to apply a <em>distinct</em> and a <em>sort</em> to all the molecules to get our answer after 1000 reaction cycles.</p>
+
+    <pre><code class="clj">
+        (let [reactions (reaction-cycle 10000)]
+        (-> reactions distinct sort))
+        ;; -> (2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97)
+    </code></pre>
+
+    <h2>Gamma Chemical Programming</h2>
+
+    <p>The prime program that we were just exploring is an example of a <em>Gamma Program</em>.  It was the first model of computation for a chemical model proposed around 1986.  The hallmarks of a gamma program are:</p>
+
+    <ul>
+      <li>Reaction rules that work on multisets of <em>molecule elements</em></li>
+      <li>Reaction rules are made up of a condition and an action</li>
+      <li>Execution takes place when the reaction replaces the elements with new elements from reaction result</li>
+      <li>The result of the Gamma program is obtained when the solution reaches a steady-state.</li>
+    </ul>
+
+    <p>Another example of a Gamma program is simple calculation for a <em>max</em>.</p>
+
+    <p><img src="./images/max-reaction.png" alt="prime reaction" title="" /></p>
+
+    <p>So far we have been showing examples in Clojure code with no
+      visualization.  But with the help of ClojureScript and core.async
+      we can actually make a simulation of a gamma program.  In this
+      simulation, the integers-molecules are shown as being circles
+      floating around in a solution.  They react with each other when
+      they collide.  Each molecule is running its own movement and
+      reaction in its own core.async go-loop.  State is coordinated
+      through a global atom map that keeps track of the position and
+      value of each molecule.  The result is continuously updated on the
+      bottom by sampling the solution with a distinct/sort.</p>
+
+    <div id="gamma-app">
+      <h3 id="gamma-experiment-title"></h3>
+      <canvas id="gamma-canvas" class="canvas" width="500" height="500"></canvas>
+      <div class="controls">
+        <div>
+          <button id="gamma-small-prime-button">Small Prime Example</button>
+          <button id="gamma-prime-button">Primes of 100</button>
+        </div>
+        <div>
+          <button id="gamma-small-max-button">Small Max Example</button>
+          <button id="gamma-max-button">Max of 100</button>
+        </div>
+        <div>The answer measurement is determined by applying
+          distinct/sort to the molecule solution</div>
+        <div><span class="plabel">Answer:</span><span id="answer"></span></div>
+      </div>
+    </div>
+
+    <p>One of the things to note is that we no longer care about any order of operations.  In our original, traditional approach, we cycled through a list in a sequential order.  In the Chemical Programming approach, we have abstracted the reaction to a higher level that no longer cares about order of operations.  This allows us to harness the full powers of concurrency to our problems.</p>
+
+    <h2>Higher Order Chemical Programming</h2>
+
+    <p>So far we have been encoding the <em>prime-reaction</em> and <em>max</em>reaction_ directly in our program.  But, we it we took these reaction rules and made them a molecule?  This is the central idea of Higher Order Chemical Programming.</p>
+
+    <p>There is a molecule that has as its value a <em>prime-reaction</em> function. The reaction function takes two arguments</p>
+
+    <pre><code class="clj">
+        defn prime-reaction [a b]
+        (if (and (> a b)
+        (zero? (mod a b)))
+        [(/ a b) b]
+        [a b]))
+    </code></pre>
+
+    <p>If the function molecule encounters a value molecule, it will capture it.  If it has captured enough value molecules to satisfy the arity of the reaction function, (in the prime function it is two), then it will <em>hatch</em>.  The process of hatching will apply the function to the values and create new molecules out of the result. The function molecules are considered <em>n-shot</em> in our experiments.  This means that after the function molecule <em>hatches</em>, it will have the result being the new value molecules as well as the original function molecule with no captured arguments.  In this way, it can continue to react in solution.</p>
+
+    <p>There are interesting ways that these reaction function molecules can control the growth of the solution. The previous <em>prime-reaction</em> function took in two molecules and returned two-molecules.  The number of molecules in the solution will continue to be the same.  We could change the reaction function to be reducing by changing the return molecule to be only one.</p>
+
+    <pre><code class="clj">
+        (defn prime-reaction-reducing [a b]
+        (if (and (> a b)
+        (zero? (mod a b)))
+        [b]
+        [a b]))
+    </code></pre>
+
+    <p>Now the solution will get continually smaller, at the end of the stable state solution, only the primes, will remain.</p>
+
+    <p>The simulation in ClojureScript shows examples with prime and max function molecules.  As a function captures a molecule, it will appear with a red ring around the grey function molecule.  When it captures another, it will hatch into the result molecules.  There are examples of prime and max function molecules that keep the reaction the same size as well as reducing.  To enable collision mixing when the solution gets smaller with the reducing function, the function molecules where given the additional ability to trade captured values when they collided.</p>
+
+
+    <div id="higher-order-app">
+      <h1 >Higher Order Chemical Computing</h2>
+<h3 id="experiment-title"></h3>
+<canvas id="higher-order-canvas" class="canvas" width="500" height="500"></canvas>
+<div class="controls">
+  <div>
+    <button id="small-prime-button">Small Prime Example</button>
+    <button id="prime-button">Primes of 50</button>
+  </div>
+  <div>
+    <button id="small-prime-reducing-button">Small Reducing Prime Example</button>
+    <button id="prime-reducing-button">Reducing Primes of 50</button>
+  </div>
+  <div>
+    <button id="small-max-button">Small Max Example</button>
+    <button id="max-button">Max of 100</button>
+  </div>
+  <div>
+    <button id="small-max-reducing-button">Small Reducing Max Example</button>
+    <button id="max-reducing-button">Reducing Max of 50</button>
+  </div>
+  <div id="higher-order-measurement-desc">The answer measurement is determined by first, extracting
+    all value molecules, (as well as any captured value
+    molecules), from the solution. Then applying distinct/sort.</div>
+  <div><span class="plabel">Answer:</span><span id="higher-order-answer"></span></div>
+</div>
+</div>
+
+<h3>Dining Philosophers</h3>
+
+<p>Now that we have the power of Higher Order Chemical Programming, we can start to explore more involved programs.  One example that is interesting to take a look at in light of the advantage of concurrency that Chemical Programming allows, is the Dining Philosophers problem.</p>
+
+<p>A recap of the <a href="https://en.wikipedia.org/wiki/Dining_philosophers_problem">Dining Philosophers</a> problem is:</p>
+
+<blockquote>
+  <p>Five silent philosophers sit at a round table with bowls of spaghetti. Forks are placed between each pair of adjacent philosophers. (An alternative problem formulation uses rice and chopsticks instead of spaghetti and forks).</p>
+
+  <p>Each philosopher must alternately think and eat. However, a philosopher can only eat spaghetti when he has both left and right forks. Each fork can be held by only one philosopher and so a philosopher can use the fork only if it is not being used by another philosopher. After he finishes eating, he needs to put down both forks so they become available to others. A philosopher can take the fork on his right or the one on his left as they become available, but cannot start eating before getting both of them.</p>
+</blockquote>
+
+<p>In our experiment, we are going to have the philosophers in a line instead of a circle, (only because of my limited graphical skills), and we can describe them each as molecules.</p>
+
+<ul>
+  <li>Thinking Philosopher molecule (TP)</li>
+  <li>Eating Philosopher molecule (EP)</li>
+  <li>Fork molecule (f)</li>
+  <li>Eat function molecule</li>
+  <li>Think function molecule</li>
+</ul>
+
+<p>An Eat function molecule only reacts with a Thinking Philosopher, (TP) molecule.  If there are two forks available, it will transform it into an Eating Philosopher, (EP).  Otherwise, it will remain a Thinking Philosopher.</p>
+
+<p>A Think function molecule only reacts with an Eating Philosopher, (EP) molecule.  It transforms it into two fork molecules and a Thinking Philosopher.</p>
+
+<p>Again, all molecule are operating independently and concurrently in their own go-loop and molecule capture, (like forks), are happening atomicly.</p>
+
+<div id="dp-app">
+  <h2>Dining Philosophers</h2>
+  <h3 id="dp-experiment-title">EP = Eating Philosopher, TP = Thinking Philosopher</h3>
+  <canvas id="dp-canvas" class="canvas" width="500" height="500"></canvas>
+</div>
+
+<h3>Self Healing Mail System</h3>
+
+<p>Using the metaphor of Chemical Programming can also be used to create Self-Organizing and Self-Healing systems.  One example that we have explored here originates in  <a href="http://pop-art.inrialpes.fr/~fradet/PDFs/IJUC06a.pdf">Programming Self-Organizing Systems with the Higher-Order Chemical Language</a>, is a mail system.</p>
+
+<p>We use the Higher Order Programming model to describe the mail system as molecules:</p>
+
+<ul>
+  <li>Mail molecule (pink) that consists of a two character value like "a1".  The first char is the address of the domain of the mail server.  The last char is the address of the box of the recipient.</li>
+  <li>In Mailbox molecule (wheat) that has a mailbox address like "a1".  It is a function molecule and can only react with mailbox molecules that match its address.  If the mail message matches it, it will capture it and add it to the global atom of mail received.</li>
+  <li>Server molecule (lightblue) that is a function and can only capture and react with mail message molecules.  If the mail message matches the domain it will route it to the right or left according to it's function.</li>
+  <li>Inactive Server Molecule (lightgray) - doesn't react with anything</li>
+  <li>Network molecule (lightgreen) that is a function that reacts with mail messages and routes them to the right server.</li>
+  <li>Server Crash molecule (red) that is a function molecule that reacts with a Server Molecule and turns it into an Inactive Server molecule.  It is also a <em>one-shot</em> function molecule that just hatches once and does not keep going.</li>
+  <li>Server Fixes Molecule (green) - This only reacts with an Inactive Server molecule and turns it into a Server Molecule.</li>
+  <li>Membrane molecule (lightgray) - It doesn't react with anything.</li>
+</ul>
+
+<p>This simulation is a bit different because it uses collections of membrane molecules to form <em>walls</em> to keep the molecules segregated in different areas.  It acts as a way to allow the mail messages to move to different sub solutions in the overall system. Mail molecules are generated and as they interact with their environment, they eventually find their way to the destination mailbox.  In the same way, the system can recover, or <em>self-heal</em> from server crashes by having Server Fix molecules patrolling the area.</p>
+
+
+<p><a href="http://gigasquidsoftware.com/chemical-computing/mail-system.html">Self Organizing & Healing Mail System Demo</a></p>
+
+
+<h3>Conclusions</h3>
+
+<p>It is incredibly useful to be able to step back and approach computing from whole another viewpoint and direction.  Abstract Chemical Programming allows us to do this.  After experimenting with this way of approaching computation and modeling systems, I can see a couple of real advantages.  One the main advantages is concurrency.  Regular programming models have all sorts of <em>incidental sequentiality</em> that constrain the abilities of having a truly concurrent system.  Another advantage is the beauty and simplicity of the reaction rules.  With simple reaction rules and the ability to use functions as molecules, it becomes natural to create distributed, concurrent, self organizing, and self healing systems.</p>
+
+<p>Nature knows what it is doing.  We have a lot to learn by studying it and applying the models to our computation.</p>
+
+</body>
+<script src="js/gamma.js" type="text/javascript"></script>
+<script src="js/higher_order.js" type="text/javascript"></script>
+<script src="js/dining_philosophers.js" type="text/javascript"></script>
+
+</html>

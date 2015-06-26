@@ -8,7 +8,7 @@
 
 (enable-console-print!)
 
-(def canvas (-> js/document (.getElementById "canvas")))
+(def canvas (-> js/document (.getElementById "gamma-canvas")))
 (def context (.getContext canvas "2d"))
 (def width (.-width canvas))
 (def height (.-height canvas))

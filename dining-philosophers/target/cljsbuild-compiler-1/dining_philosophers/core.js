@@ -3,7 +3,7 @@ goog.provide('dining_philosophers.core');
 goog.require('cljs.core');
 goog.require('cljs.core.async');
 cljs.core.enable_console_print_BANG_.call(null);
-dining_philosophers.core.canvas = document.getElementById("canvas");
+dining_philosophers.core.canvas = document.getElementById("dp-canvas");
 dining_philosophers.core.context = dining_philosophers.core.canvas.getContext("2d");
 dining_philosophers.core.width = dining_philosophers.core.canvas.width;
 dining_philosophers.core.height = dining_philosophers.core.canvas.height;
@@ -67,7 +67,8 @@ var d = cljs.core.get.call(null,map__9358__$1,new cljs.core.Keyword(null,"d","d"
 var y = cljs.core.get.call(null,map__9358__$1,new cljs.core.Keyword(null,"y","y",-1757859776));
 var x = cljs.core.get.call(null,map__9358__$1,new cljs.core.Keyword(null,"x","x",2099068185));
 if(cljs.core.truth_(val)){
-var display_val = ((cljs.core.fn_QMARK_.call(null,val))?val.name:val);
+var display_val = ((cljs.core._EQ_.call(null,dining_philosophers.core.eat,val))?cljs.core.name.call(null,new cljs.core.Keyword(null,"eat","eat",1686757401)):((cljs.core._EQ_.call(null,dining_philosophers.core.think,val))?cljs.core.name.call(null,new cljs.core.Keyword(null,"think","think",1767447468)):cljs.core.name.call(null,val)
+));
 dining_philosophers.core.draw_circle.call(null,dining_philosophers.core.context,color,d,x,y);
 
 var G__9359 = dining_philosophers.core.context;
@@ -823,7 +824,7 @@ return cljs.core._EQ_.call(null,new cljs.core.Keyword(null,"id","id",-1388402092
 ,cljs.core.vals.call(null,cljs.core.deref.call(null,dining_philosophers.core.world)));
 var collided_with = cljs.core.filter.call(null,((function (diam,rest_molecules){
 return (function (b){
-return (cljs.core._EQ_.call(null,"f",new cljs.core.Keyword(null,"val","val",128701612).cljs$core$IFn$_invoke$arity$1(b))) && (dining_philosophers.core.collide_QMARK_.call(null,b,new cljs.core.Keyword(null,"x","x",2099068185).cljs$core$IFn$_invoke$arity$1(tp),new cljs.core.Keyword(null,"y","y",-1757859776).cljs$core$IFn$_invoke$arity$1(tp),diam));
+return (cljs.core._EQ_.call(null,new cljs.core.Keyword(null,"f","f",-1597136552),new cljs.core.Keyword(null,"val","val",128701612).cljs$core$IFn$_invoke$arity$1(b))) && (dining_philosophers.core.collide_QMARK_.call(null,b,new cljs.core.Keyword(null,"x","x",2099068185).cljs$core$IFn$_invoke$arity$1(tp),new cljs.core.Keyword(null,"y","y",-1757859776).cljs$core$IFn$_invoke$arity$1(tp),diam));
 });})(diam,rest_molecules))
 ,rest_molecules);
 return collided_with;
@@ -845,19 +846,19 @@ dining_philosophers.core.think = (function think(mol){
 return new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, ["two-forks and thinking-philosopher"], null);
 });
 dining_philosophers.core.gen_fork_molecule = (function gen_fork_molecule(x,y){
-return cljs.core.PersistentHashMap.fromArrays([new cljs.core.Keyword(null,"y","y",-1757859776),new cljs.core.Keyword(null,"args","args",1315556576),new cljs.core.Keyword(null,"dx","dx",-381796732),new cljs.core.Keyword(null,"color","color",1011675173),new cljs.core.Keyword(null,"dy","dy",1719547243),new cljs.core.Keyword(null,"val","val",128701612),new cljs.core.Keyword(null,"id","id",-1388402092),new cljs.core.Keyword(null,"d","d",1972142424),new cljs.core.Keyword(null,"x","x",2099068185)],[y,cljs.core.PersistentVector.EMPTY,0.0,"pink",0.0,"f",cljs.core.swap_BANG_.call(null,dining_philosophers.core.mol_id_counter,cljs.core.inc),(10),x]);
+return cljs.core.PersistentHashMap.fromArrays([new cljs.core.Keyword(null,"y","y",-1757859776),new cljs.core.Keyword(null,"args","args",1315556576),new cljs.core.Keyword(null,"dx","dx",-381796732),new cljs.core.Keyword(null,"color","color",1011675173),new cljs.core.Keyword(null,"dy","dy",1719547243),new cljs.core.Keyword(null,"val","val",128701612),new cljs.core.Keyword(null,"id","id",-1388402092),new cljs.core.Keyword(null,"d","d",1972142424),new cljs.core.Keyword(null,"x","x",2099068185)],[y,cljs.core.PersistentVector.EMPTY,0.0,"pink",0.0,new cljs.core.Keyword(null,"f","f",-1597136552),cljs.core.swap_BANG_.call(null,dining_philosophers.core.mol_id_counter,cljs.core.inc),(10),x]);
 });
 dining_philosophers.core.gen_think_philosopher_molecule = (function gen_think_philosopher_molecule(x,y){
-return cljs.core.PersistentHashMap.fromArrays([new cljs.core.Keyword(null,"y","y",-1757859776),new cljs.core.Keyword(null,"args","args",1315556576),new cljs.core.Keyword(null,"dx","dx",-381796732),new cljs.core.Keyword(null,"color","color",1011675173),new cljs.core.Keyword(null,"dy","dy",1719547243),new cljs.core.Keyword(null,"val","val",128701612),new cljs.core.Keyword(null,"id","id",-1388402092),new cljs.core.Keyword(null,"d","d",1972142424),new cljs.core.Keyword(null,"x","x",2099068185)],[y,cljs.core.PersistentVector.EMPTY,0.0,"lightblue",0.0,"TP",cljs.core.swap_BANG_.call(null,dining_philosophers.core.mol_id_counter,cljs.core.inc),(20),x]);
+return cljs.core.PersistentHashMap.fromArrays([new cljs.core.Keyword(null,"y","y",-1757859776),new cljs.core.Keyword(null,"args","args",1315556576),new cljs.core.Keyword(null,"dx","dx",-381796732),new cljs.core.Keyword(null,"color","color",1011675173),new cljs.core.Keyword(null,"dy","dy",1719547243),new cljs.core.Keyword(null,"val","val",128701612),new cljs.core.Keyword(null,"id","id",-1388402092),new cljs.core.Keyword(null,"d","d",1972142424),new cljs.core.Keyword(null,"x","x",2099068185)],[y,cljs.core.PersistentVector.EMPTY,0.0,"lightblue",0.0,new cljs.core.Keyword(null,"TP","TP",163239233),cljs.core.swap_BANG_.call(null,dining_philosophers.core.mol_id_counter,cljs.core.inc),(20),x]);
 });
 dining_philosophers.core.gen_eat_philosopher_molecule = (function gen_eat_philosopher_molecule(x,y){
-return cljs.core.PersistentHashMap.fromArrays([new cljs.core.Keyword(null,"y","y",-1757859776),new cljs.core.Keyword(null,"args","args",1315556576),new cljs.core.Keyword(null,"dx","dx",-381796732),new cljs.core.Keyword(null,"color","color",1011675173),new cljs.core.Keyword(null,"dy","dy",1719547243),new cljs.core.Keyword(null,"val","val",128701612),new cljs.core.Keyword(null,"id","id",-1388402092),new cljs.core.Keyword(null,"d","d",1972142424),new cljs.core.Keyword(null,"x","x",2099068185)],[y,cljs.core.PersistentVector.EMPTY,0.0,"yellow",0.0,"EP",cljs.core.swap_BANG_.call(null,dining_philosophers.core.mol_id_counter,cljs.core.inc),(20),x]);
+return cljs.core.PersistentHashMap.fromArrays([new cljs.core.Keyword(null,"y","y",-1757859776),new cljs.core.Keyword(null,"args","args",1315556576),new cljs.core.Keyword(null,"dx","dx",-381796732),new cljs.core.Keyword(null,"color","color",1011675173),new cljs.core.Keyword(null,"dy","dy",1719547243),new cljs.core.Keyword(null,"val","val",128701612),new cljs.core.Keyword(null,"id","id",-1388402092),new cljs.core.Keyword(null,"d","d",1972142424),new cljs.core.Keyword(null,"x","x",2099068185)],[y,cljs.core.PersistentVector.EMPTY,0.0,"yellow",0.0,new cljs.core.Keyword(null,"EP","EP",-349959499),cljs.core.swap_BANG_.call(null,dining_philosophers.core.mol_id_counter,cljs.core.inc),(20),x]);
 });
 dining_philosophers.core.gen_eat_molecule = (function gen_eat_molecule(x,y){
-return cljs.core.PersistentHashMap.fromArrays([new cljs.core.Keyword(null,"y","y",-1757859776),new cljs.core.Keyword(null,"args","args",1315556576),new cljs.core.Keyword(null,"dx","dx",-381796732),new cljs.core.Keyword(null,"color","color",1011675173),new cljs.core.Keyword(null,"dy","dy",1719547243),new cljs.core.Keyword(null,"val","val",128701612),new cljs.core.Keyword(null,"id","id",-1388402092),new cljs.core.Keyword(null,"d","d",1972142424),new cljs.core.Keyword(null,"x","x",2099068185),new cljs.core.Keyword(null,"allowed-arg-val","allowed-arg-val",1907742522)],[y,cljs.core.PersistentVector.EMPTY,0.0,"lightgreen",(cljs.core.rand.call(null) + (1)),dining_philosophers.core.eat,cljs.core.swap_BANG_.call(null,dining_philosophers.core.mol_id_counter,cljs.core.inc),(20),x,"TP"]);
+return cljs.core.PersistentHashMap.fromArrays([new cljs.core.Keyword(null,"y","y",-1757859776),new cljs.core.Keyword(null,"args","args",1315556576),new cljs.core.Keyword(null,"dx","dx",-381796732),new cljs.core.Keyword(null,"color","color",1011675173),new cljs.core.Keyword(null,"dy","dy",1719547243),new cljs.core.Keyword(null,"val","val",128701612),new cljs.core.Keyword(null,"id","id",-1388402092),new cljs.core.Keyword(null,"d","d",1972142424),new cljs.core.Keyword(null,"x","x",2099068185),new cljs.core.Keyword(null,"allowed-arg-val","allowed-arg-val",1907742522)],[y,cljs.core.PersistentVector.EMPTY,0.0,"lightgreen",(cljs.core.rand.call(null) + (1)),dining_philosophers.core.eat,cljs.core.swap_BANG_.call(null,dining_philosophers.core.mol_id_counter,cljs.core.inc),(20),x,new cljs.core.Keyword(null,"TP","TP",163239233)]);
 });
 dining_philosophers.core.gen_think_molecule = (function gen_think_molecule(x,y){
-return cljs.core.PersistentHashMap.fromArrays([new cljs.core.Keyword(null,"y","y",-1757859776),new cljs.core.Keyword(null,"args","args",1315556576),new cljs.core.Keyword(null,"dx","dx",-381796732),new cljs.core.Keyword(null,"color","color",1011675173),new cljs.core.Keyword(null,"dy","dy",1719547243),new cljs.core.Keyword(null,"val","val",128701612),new cljs.core.Keyword(null,"id","id",-1388402092),new cljs.core.Keyword(null,"d","d",1972142424),new cljs.core.Keyword(null,"x","x",2099068185),new cljs.core.Keyword(null,"allowed-arg-val","allowed-arg-val",1907742522)],[y,cljs.core.PersistentVector.EMPTY,0.0,"orange",(cljs.core.rand.call(null) - (-1)),dining_philosophers.core.think,cljs.core.swap_BANG_.call(null,dining_philosophers.core.mol_id_counter,cljs.core.inc),(20),x,"EP"]);
+return cljs.core.PersistentHashMap.fromArrays([new cljs.core.Keyword(null,"y","y",-1757859776),new cljs.core.Keyword(null,"args","args",1315556576),new cljs.core.Keyword(null,"dx","dx",-381796732),new cljs.core.Keyword(null,"color","color",1011675173),new cljs.core.Keyword(null,"dy","dy",1719547243),new cljs.core.Keyword(null,"val","val",128701612),new cljs.core.Keyword(null,"id","id",-1388402092),new cljs.core.Keyword(null,"d","d",1972142424),new cljs.core.Keyword(null,"x","x",2099068185),new cljs.core.Keyword(null,"allowed-arg-val","allowed-arg-val",1907742522)],[y,cljs.core.PersistentVector.EMPTY,0.0,"orange",(cljs.core.rand.call(null) - (-1)),dining_philosophers.core.think,cljs.core.swap_BANG_.call(null,dining_philosophers.core.mol_id_counter,cljs.core.inc),(20),x,new cljs.core.Keyword(null,"EP","EP",-349959499)]);
 });
 dining_philosophers.core.dining_mols = cljs.core.concat.call(null,cljs.core.mapv.call(null,dining_philosophers.core.gen_fork_molecule,cljs.core.range.call(null,(25),(500),(50)),cljs.core.repeat.call(null,(450))),cljs.core.mapv.call(null,dining_philosophers.core.gen_think_philosopher_molecule,cljs.core.range.call(null,(50),(500),(50)),cljs.core.repeat.call(null,(450))),cljs.core.mapv.call(null,dining_philosophers.core.gen_eat_molecule,cljs.core.range.call(null,(50),(500),(50)),cljs.core.repeat.call(null,(300))),cljs.core.mapv.call(null,dining_philosophers.core.gen_think_molecule,cljs.core.range.call(null,(50),(500),(50)),cljs.core.repeat.call(null,(100))));
 dining_philosophers.core.dining_philosophers = (function dining_philosophers__$1(){
@@ -867,5 +868,3 @@ dining_philosophers.core.clear.call(null);
 dining_philosophers.core.start.call(null);
 dining_philosophers.core.run.call(null);
 dining_philosophers.core.dining_philosophers.call(null);
-
-//# sourceMappingURL=core.js.map

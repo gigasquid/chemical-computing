@@ -6,7 +6,7 @@
 
 (enable-console-print!)
 
-(def canvas (-> js/document (.getElementById "canvas")))
+(def canvas (-> js/document (.getElementById "dp-canvas")))
 (def context (.getContext canvas "2d"))
 (def width (.-width canvas))
 (def height (.-height canvas))
@@ -22,6 +22,8 @@
 (declare gen-eat-philosopher-molecule)
 (declare gen-think-philosopher-molecule)
 (declare molecule-reaction)
+(declare eat)
+(declare think)
 
 (defn setColor [context color]
   (set! (.-fillStyle context) color)
@@ -51,7 +53,15 @@
 
 (defn draw-molecule [{:keys [x y d val color args]}]
   (when val
-    (let [display-val (if (fn? val) (.-name val) val)]
+    (let [display-val (cond
+                        (= eat val)
+                        (name :eat)
+
+                        (= think val)
+                        (name :think)
+
+                        :else
+                        (name val))]
      (draw-circle context color d x y)
      (doto context
        (setText "black" "bold 11px Courier")
@@ -227,7 +237,7 @@
 (defn get-forks [tp]
   (let [diam (* 2 (:d tp))
         rest-molecules (remove (fn [b] (= (:id tp) (:id b))) (vals @world))
-        collided-with (filter (fn [b] (and (= "f" (:val b))
+        collided-with (filter (fn [b] (and (= :f (:val b))
                                           (collide? b (:x tp) (:y tp) diam))) rest-molecules)]
     collided-with))
 
@@ -247,7 +257,7 @@
    :x x
    :y y
    :d 10
-   :val "f"
+   :val :f
    :color "pink"
    :dx 0.0
    :dy 0.0
@@ -258,7 +268,7 @@
    :x x
    :y y
    :d 20
-   :val "TP"
+   :val :TP
    :color "lightblue"
    :dx 0.0
    :dy 0.0
@@ -269,7 +279,7 @@
    :x x
    :y y
    :d 20
-   :val "EP"
+   :val :EP
    :color "yellow"
    :dx 0.0
    :dy 0.0
@@ -285,7 +295,7 @@
    :dx 0.0
    :dy (+ (rand) 1)
    :args []
-   :allowed-arg-val "TP"})
+   :allowed-arg-val :TP})
 
 (defn gen-think-molecule [x y]
   {:id (swap! mol-id-counter inc)
@@ -297,7 +307,7 @@
    :dx 0.0
    :dy (- (rand) -1)
    :args []
-   :allowed-arg-val "EP"})
+   :allowed-arg-val :EP})
 
 
 (def dining-mols (concat

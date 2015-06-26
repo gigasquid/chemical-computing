@@ -5,7 +5,7 @@ goog.require('enfocus.events');
 goog.require('enfocus.core');
 goog.require('cljs.core.async');
 cljs.core.enable_console_print_BANG_();
-higher_order.core.canvas = document.getElementById("canvas");
+higher_order.core.canvas = document.getElementById("higher-order-canvas");
 higher_order.core.context = higher_order.core.canvas.getContext("2d");
 higher_order.core.width = higher_order.core.canvas.width;
 higher_order.core.height = higher_order.core.canvas.height;
@@ -781,7 +781,7 @@ return (cljs.core.deref.cljs$core$IFn$_invoke$arity$1 ? cljs.core.deref.cljs$cor
 })()));
 
 var answer = higher_order.core.measurement();
-return enfocus.core.at.cljs$core$IFn$_invoke$arity$variadic("#answer",cljs.core.array_seq([enfocus.core.content.cljs$core$IFn$_invoke$arity$variadic(cljs.core.array_seq([[cljs.core.str(answer)].join('')], 0))], 0));
+return enfocus.core.at.cljs$core$IFn$_invoke$arity$variadic("#higher-order-answer",cljs.core.array_seq([enfocus.core.content.cljs$core$IFn$_invoke$arity$variadic(cljs.core.array_seq([[cljs.core.str(answer)].join('')], 0))], 0));
 } else {
 return higher_order.core.setLoading(higher_order.core.context);
 }

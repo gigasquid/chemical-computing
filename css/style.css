@@ -1,24 +1,23 @@
 /* some style */
 
-h3,h2,h1{
+h3,h2,h1,p,ul,pre{
     margin-left: 100px;
+    margin-right: 100px;
 }
-
-#measurement-desc{
-   width: 500px;}
 
 .plabel {
     font-weight: bold;
     padding-right: 5px;
 }
 
-#controls {
+
+.controls {
     padding: 25px;
     margin-left: 75px;
     width: 600px;
 }
 
-#canvas {
+.canvas {
     margin-left: 100px;
     border-radius: 25px;
     border: 2px solid #8AC007;
@@ -28,4 +27,3 @@ button {
     padding: 5px;
     margin-bottom: 10px;
 }
-

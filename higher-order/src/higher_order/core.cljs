@@ -10,7 +10,7 @@
 
 ;; define your app data so that it doesn't get over-written on reload
 
-(def canvas (-> js/document (.getElementById "canvas")))
+(def canvas (-> js/document (.getElementById "higher-order-canvas")))
 (def context (.getContext canvas "2d"))
 (def width (.-width canvas))
 (def height (.-height canvas))
@@ -208,7 +208,7 @@
   (if @running
     (do (draw-molecules (vals @world))
         (let [answer (measurement)]
-          (ef/at "#answer" (ef/content (str  answer)))))
+          (ef/at "#higher-order-answer" (ef/content (str  answer)))))
     (setLoading context)))
 
 (defn time-loop []

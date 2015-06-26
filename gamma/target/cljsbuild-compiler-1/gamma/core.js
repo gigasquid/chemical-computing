@@ -5,7 +5,7 @@ goog.require('enfocus.events');
 goog.require('enfocus.core');
 goog.require('cljs.core.async');
 cljs.core.enable_console_print_BANG_();
-gamma.core.canvas = document.getElementById("canvas");
+gamma.core.canvas = document.getElementById("gamma-canvas");
 gamma.core.context = gamma.core.canvas.getContext("2d");
 gamma.core.width = gamma.core.canvas.width;
 gamma.core.height = gamma.core.canvas.height;

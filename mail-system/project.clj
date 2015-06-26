@@ -31,7 +31,6 @@
               :source-paths ["src"]
               :compiler {:output-to "resources/public/js/compiled/mail_system.js"
                          :main mail-system.core
-                         :optimizations :none
-                         :source-map true
+                         :optimizations :simple
                          :pretty-print false}}]}
 )

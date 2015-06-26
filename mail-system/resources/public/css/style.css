@@ -18,7 +18,7 @@ h3,h2,h1{
     width: 600px;
 }
 
-#canvas {
+.canvas {
     margin-left: 100px;
     border-radius: 25px;
     border: 2px solid #8AC007;
@@ -28,4 +28,3 @@ button {
     padding: 5px;
     margin-bottom: 10px;
 }
-

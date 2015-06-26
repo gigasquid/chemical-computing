@@ -31,5 +31,5 @@
               :source-paths ["src"]
               :compiler {:output-to "resources/public/js/compiled/dining_philosophers.js"
                          :main dining-philosophers.core
-                         :optimizations :none
+                         :optimizations :simple
                          :pretty-print false}}]})
