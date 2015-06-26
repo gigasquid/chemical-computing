@@ -90,7 +90,6 @@
 (defn max-reaction [molecule-a molecule-b]
   (let [a (:val molecule-a)
         b (:val molecule-b)]
-    (println :a a :b b)
     (if (> b a)
       (assoc molecule-a :val b)
       molecule-a)))

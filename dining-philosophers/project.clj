@@ -32,7 +32,8 @@
               :source-paths ["src"]
               :compiler {:output-to "resources/public/js/compiled/dining_philosophers.js"
                          :main dining-philosophers.core
-                         :optimizations :advanced
+                         :optimizations :none
+                         :source-map true
                          :pretty-print false}}]}
 
   :figwheel {

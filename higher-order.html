@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <link href="css/style.css" rel="stylesheet" type="text/css">
+  </head>
+  <body>
+    <div id="app">
+      <h1 >Higher Order Chemical Computing</h2>
+      <h3 id="experiment-title"></h3>
+      <canvas id="canvas" width="500" height="500"></canvas>
+      <div id="controls">
+        <div>
+          <button id="small-prime-button">Small Prime Example</button>
+          <button id="prime-button">Primes of 50</button>
+        </div>
+        <div>
+          <button id="small-prime-reducing-button">Small Reducing Prime Example</button>
+          <button id="prime-reducing-button">Reducing Primes of 50</button>
+         </div>
+        <div>
+          <button id="small-max-button">Small Max Example</button>
+          <button id="max-button">Max of 100</button>
+        </div>
+        <div>
+          <button id="small-max-reducing-button">Small Reducing Max Example</button>
+          <button id="max-reducing-button">Reducing Max of 50</button>
+        </div>
+        <div id="measurement-desc">The answer measurement is determined by first, extracting
+        all value molecules, (as well as any captured value
+        molecules), from the solution. Then applying distinct/sort.</div>
+        <div><span class="plabel">Answer:</span><span id="answer"></span></div>
+      </div>
+    </div>
+    <script src="js/higher_order.js" type="text/javascript"></script>
+  </body>
+</html>

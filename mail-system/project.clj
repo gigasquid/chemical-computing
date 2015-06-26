@@ -30,9 +30,10 @@
                          :cache-analysis true }}
              {:id "min"
               :source-paths ["src"]
-              :compiler {:output-to "resources/public/js/compiled/mail_sytem.js"
+              :compiler {:output-to "resources/public/js/compiled/mail_system.js"
                          :main mail-system.core
-                         :optimizations :advanced
+                         :optimizations :none
+                         :source-map true
                          :pretty-print false}}]}
 
   :figwheel {
